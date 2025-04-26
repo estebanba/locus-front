@@ -13,13 +13,13 @@ export const About = () => {
           Originally trained as an architect, I was early on interested in the intersection of design and technology.
         </p>
         <p className="text-lg text-muted-foreground mb-4">
-          In an industry that is still very much analog, I saw the need for technology to help us understand and use data better.
+          In an industry that is still very much analogue, I saw the need for technology to help us understand and use data better.
         </p>
         <p className="text-lg text-muted-foreground mb-4">
           I joined Tesla in 2022, where I worked on the development of engineering applications.
         </p>
         <p className="text-lg text-muted-foreground mb-4">
-          My latest work woke me up to the importance of data and its role in our lives, and how it can be used to make better decisions, all of which took me into the world of data analytics and data science
+          My latest work woke me up to the importance of data and its role in our lives, and how it can be used to make better decisions, all of which took me into the world of data analytics and data science.
         </p>
       </div>
       {/* Removed placeholder div and grid structure */} 
