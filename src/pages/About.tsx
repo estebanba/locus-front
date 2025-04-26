@@ -2,7 +2,7 @@ export const About = () => {
   return (
     <div className="container mx-auto p-4 pt-8 flex flex-col items-end space-y-8">
       {/* Text Content Block - Styled like Work page */}
-      <div className="w-full"> 
+      <div className="w-full max-w-2xl"> 
         {/* Updated H1 styling */}
         <h2 className="text-3xl tracking-tight mb-4">Esteban Basili</h2>
         {/* Updated P styling */}

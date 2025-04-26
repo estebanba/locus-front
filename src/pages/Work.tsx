@@ -39,12 +39,12 @@ export const Work = () => {
   return (
     <div className="container mx-auto p-4 pt-8 flex flex-col items-end space-y-8">
       
-      <div className="w-full">
+      <div className="w-full max-w-2xl">
         <p className=" text-muted-foreground">
-          My work has been inprinted by creativity and innovation.
+          My work spans across industries and disciplines, from design and development to manufacturing and engineering. The constant has been working with amazing people and creating things that make an impact.
         </p>
       </div>
-      <div className="w-full">
+      <div className="w-full max-w-2xl">
         <h2 className="text-2xl tracking-tight mb-4 flex justify-between items-center gap-2">
           <TeslaIcon className="h-3 w-auto" />
           <span className="text-lg text-muted-foreground">2022-2024</span>
@@ -82,7 +82,7 @@ export const Work = () => {
 // Update WorkCard to use the full Activity interface
 const WorkCard = ({ activity, index }: { activity: Activity, index: number }) => {
   return (
-    <Card key={index} className="flex flex-col w-full border-none shadow-none relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1/2 after:h-px after:bg-border pb-2">
+    <Card key={index} className="flex flex-col w-full max-w-2xl border-none shadow-none relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1/2 after:h-px after:bg-border pb-2">
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value={`item-${index}`} className="border-none">
               <CardHeader className="px-0 pb-2">

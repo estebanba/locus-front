@@ -1,15 +1,15 @@
 // import { useState } from "react"
 import { useNavigate } from "react-router-dom"; // Import useNavigate
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb" // Keep this path
-import { Separator } from "@/components/ui/separator" // Keep this path
+// import {
+//   Breadcrumb,
+//   BreadcrumbItem,
+//   BreadcrumbList,
+//   BreadcrumbPage,
+// } from "@/components/ui/breadcrumb" 
+// import { Separator } from "@/components/ui/separator" 
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar" // Keep this path
 import { Search, Menu, X } from "lucide-react"
-import { Button } from "@/components/ui/button" // Keep this path
+import { Button } from "@/components/ui/button" 
 
 /**
  * Header component displays the top navigation bar.

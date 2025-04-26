@@ -43,9 +43,9 @@ export function Projects() {
     <div className="container mx-auto p-4 pt-8 flex flex-col items-end space-y-8">
       
       {/* Introductory text */}
-      <div className="w-full">
+      <div className="w-full max-w-2xl">
         <h2 className="text-3xl tracking-tight mb-4">Projects</h2>
-        <p className="text-lg text-muted-foreground">
+        <p className="text-muted-foreground">
           Here are some of the personal and conceptual projects I've worked on.
         </p>
       </div>
@@ -63,14 +63,14 @@ export function Projects() {
 const ProjectCard = ({ project, index }: { project: Project, index: number }) => {
   return (
     // Apply compact card styling
-    <Card key={index} className="flex flex-col w-full border-none shadow-none relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1/2 after:h-px after:bg-border pb-2"> 
+    <Card key={index} className="flex flex-col w-full max-w-2xl border-none shadow-none relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1/2 after:h-px after:bg-border pb-2"> 
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value={`item-${index}`} className="border-none">
           {/* Header with title, summary, and trigger */}
           <CardHeader className="px-0 pb-2"> 
             <div className="mb-2">
               <CardTitle className="mb-2">{project.title}</CardTitle>
-              <CardDescription>{project.summary}</CardDescription>
+              <CardDescription className="text-md">{project.summary}</CardDescription>
             </div>
             {/* Update flex container to include Date, Company, Links, and Trigger */}
             <div className="flex justify-between items-center mt-2">

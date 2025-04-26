@@ -8,22 +8,22 @@ import './index.css'
 import { Layout } from './components/layout/Layout'
 import { About } from './pages/About'
 import { Work } from './pages/Work';
-import { Home } from './pages/Home';
-import { Start } from './pages/Start';
+// import { Home } from './pages/Home';
+// import { Start } from './pages/Start';
 import { SearchTable } from './components/SearchTable';
 import { Projects } from './pages/Projects';
 import { Photography } from './pages/Photography';
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    Component: Start,
-  },
+  // {
+  //   path: "/",
+  //   Component: About,
+  // },
   
   {
     Component: Layout,
     children: [
-        { path: "home", Component: Home },
+        { path: "/", Component: About },
         {
           path: "about",
           element: <About />,
