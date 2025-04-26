@@ -40,10 +40,10 @@ interface Project {
 export function Projects() {
   return (
     // Changed items-start to items-end
-    <div className="container mx-auto p-4 pt-8 flex flex-col items-end space-y-8">
+    <div className="p-4 pt-8 flex flex-col items-end space-y-8">
       
       {/* Introductory text */}
-      <div className="w-full max-w-2xl">
+      <div className="w-full">
         <h2 className="text-3xl tracking-tight mb-4">Projects</h2>
         <p className="text-muted-foreground">
           Here are some of the personal and conceptual projects I've worked on.
@@ -63,7 +63,7 @@ export function Projects() {
 const ProjectCard = ({ project, index }: { project: Project, index: number }) => {
   return (
     // Apply compact card styling
-    <Card key={index} className="flex flex-col w-full max-w-2xl border-none shadow-none relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1/2 after:h-px after:bg-border pb-2"> 
+    <Card key={index} className="flex flex-col w-full border-none shadow-none relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1/2 after:h-px after:bg-border pb-2"> 
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value={`item-${index}`} className="border-none">
           {/* Header with title, summary, and trigger */}

@@ -1,6 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import {
-  SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar" // Keep this path as ui/sidebar is likely still in components
 import { SideBar } from './SideBar' // Updated import name and path
@@ -27,20 +26,20 @@ export function Layout() { // Renamed component
           <div className="hidden md:block md:col-span-1" />
           
           {/* Column 2 & 3: Main Content Area (visible md+) */}
-          {/* Added class and overflow styles */}
-          <div className="main-content-area md:col-span-2 h-full overflow-y-auto" style={{ scrollbarGutter: 'stable' }}>
-            {/* On mobile, SidebarInset takes full width */}
-            <SidebarInset>
-              {/* Wrap Outlet with a div that has a key based on pathname and the transition class */}
-              <div key={location.pathname} className="page-transition p-4">
-                <Outlet />
-              </div>
-            </SidebarInset>
+          {/* Removed SidebarInset from wrapping the Outlet div */}
+          {/* Added h-full, overflow-y-auto, and style directly here */}
+          <div className="main-content-area md:col-span-2 h-full overflow-y-auto" style={{ scrollbarGutter: 'stable' }}> 
+            {/* Wrap Outlet with a div that has a key based on pathname and the transition class */}
+            {/* Restored p-4 class */}
+            <div key={location.pathname} className="page-transition p-4">
+              <Outlet />
+            </div>
           </div>
 
           {/* Column 4: Right Sidebar (visible md+) */}
           {/* On mobile, SideBar functions as offcanvas */}
           <div className="md:col-span-1">
+            {/* SidebarInset might be needed here if the sidebar itself uses it, let's keep SideBar for now */}
             <SideBar side="right" /> {/* Updated component name */}
           </div>
         </div>
