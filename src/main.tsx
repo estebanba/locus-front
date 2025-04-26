@@ -10,7 +10,7 @@ import { About } from './pages/About'
 import { Work } from './pages/Work';
 import { Home } from './pages/Home';
 import { Start } from './pages/Start';
-import { ActivityTable } from './components/ActivityTable';
+import { SearchTable } from './components/SearchTable';
 import { Projects } from './pages/Projects';
 import { Photography } from './pages/Photography';
 
@@ -42,7 +42,7 @@ const router = createBrowserRouter([
         },
         {
           path: "search",
-          element: <ActivityTable />,
+          element: <SearchTable />,
         },
     ],
   },

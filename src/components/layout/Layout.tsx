@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router'
+import { Outlet, useLocation } from 'react-router-dom'
 import {
   SidebarInset,
   SidebarProvider,
@@ -14,6 +14,8 @@ import { Header } from './Header' // Updated import name and path
  * SidebarProvider wraps the layout to provide context.
  */
 export function Layout() { // Renamed component
+  const location = useLocation(); // Get location object
+
   return (
     <div className="[--header-height:calc(theme(spacing.14))] min-h-screen flex flex-col">
       <SidebarProvider className="flex flex-col flex-grow" defaultOpen={true}>
@@ -25,11 +27,12 @@ export function Layout() { // Renamed component
           <div className="hidden md:block md:col-span-1" />
           
           {/* Column 2 & 3: Main Content Area (visible md+) */}
-          {/* On mobile, SidebarInset takes full width */}
-          <div className="md:col-span-2">
+          {/* Added class and overflow styles */}
+          <div className="main-content-area md:col-span-2 h-full overflow-y-auto" style={{ scrollbarGutter: 'stable' }}>
+            {/* On mobile, SidebarInset takes full width */}
             <SidebarInset>
-              {/* Removed inner 2-col grid, added padding */}
-              <div className="p-4">
+              {/* Wrap Outlet with a div that has a key based on pathname and the transition class */}
+              <div key={location.pathname} className="page-transition p-4">
                 <Outlet />
               </div>
             </SidebarInset>

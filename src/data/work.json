@@ -17,7 +17,8 @@
     "dateUntil": "",
     "url": "",
     "images": [],
-    "media": []
+    "media": [],
+    "github": ""
   },
   {
     "title": "3D Quality Inspection Visualization Tool",
@@ -33,12 +34,13 @@
     "technologies": ["Three.js", "React", "Node.js", "Express.js", "MongoDB", "WebGL"],
     "type": "",
     "labels": ["Quality Control", "3D Visualization", "Manufacturing", "Computer Vision"],
-    "company": "",
+    "company": "Tesla",
     "dateFrom": "2023",
     "dateUntil": "",
     "url": "",
     "images": [],
-    "media": []
+    "media": [],
+    "github": ""
   },
   {
     "title": "Workflow Management System with 3D Integration",
@@ -54,12 +56,13 @@
     "technologies": ["Three.js", "React", "Node.js", "Express.js", "MongoDB", "WebGL"],
     "type": "",
     "labels": ["Workflow Management", "3D Visualization", "Manufacturing", "Task Tracking"],
-    "company": "",
+    "company": "Tesla",
     "dateFrom": "2024",
     "dateUntil": "",
     "url": "",
     "images": [],
-    "media": []
+    "media": [],
+    "github": ""
   },
   {
     "title": "Interactive Facility Mapping Platform",
@@ -75,12 +78,13 @@
     "technologies": ["React", "SVG"],
     "type": "",
     "labels": ["Facility Mapping", "2D Visualization", "Manufacturing", "Equipment Tracking"],
-    "company": "",
+    "company": "Tesla",
     "dateFrom": "2023",
     "dateUntil": "",
     "url": "",
     "images": [],
-    "media": []
+    "media": [],
+    "github": ""
   }
 ]
   

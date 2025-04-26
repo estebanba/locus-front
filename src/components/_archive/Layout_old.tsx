@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Button } from "./ui/button"
+import { Button } from "../ui/button"
 import { cn } from "@/lib/utils"
-import { ActivityTable } from './ActivityTable'
+import { SearchTable } from '../SearchTable'
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Search, X } from "lucide-react"
 
@@ -110,7 +110,7 @@ export function Layout({
             
             {/* Activity Table */}
             <div className="mt-8">
-              <ActivityTable />
+              <SearchTable />
             </div>
           </div>
         </DialogContent>

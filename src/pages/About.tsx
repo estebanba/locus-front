@@ -1,10 +1,10 @@
 export const About = () => {
   return (
-    <div className="container mx-auto p-4 pt-8 flex flex-col items-start space-y-6">
+    <div className="container mx-auto p-4 pt-8 flex flex-col items-end space-y-8">
       {/* Text Content Block - Styled like Work page */}
-      <div className="w-full max-w-2xl mb-12"> 
+      <div className="w-full"> 
         {/* Updated H1 styling */}
-        <h1 className="text-3xl font-bold tracking-tight mb-4">Esteban Basili</h1>
+        <h2 className="text-3xl tracking-tight mb-4">Esteban Basili</h2>
         {/* Updated P styling */}
         <p className="text-lg text-muted-foreground mb-4">
           I am a developer with a multidisciplinary background focused on leveraging data and design to make complex information easier to understand and use.
