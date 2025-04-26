@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Dummy rule to reference the correct logo path */
+body::before {
+  content: url('../assets/abstract_logo.svg');
+  display: none;
+}
+
 /* Add fade-in animation */
 @keyframes fadeIn {
   from { opacity: 0; }
