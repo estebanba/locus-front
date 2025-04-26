@@ -298,7 +298,7 @@ button:focus-visible {
   html {
     /* Removed scrollbar-gutter */
     /* Set base font size here */
-    font-size: 12px;
+    font-size: 14px;
   }
   body {
     @apply bg-background text-foreground;
