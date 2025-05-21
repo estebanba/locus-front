@@ -1,95 +1,25 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Dummy rule to reference the correct logo path */
+/* rule to reference the correct logo path */
 body::before {
   content: url('../assets/abstract_logo.svg');
   display: none;
 }
 
-/* Add fade-in animation */
+/* fade-in animation */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* Utility class to apply the animation */
+/* page animation */
 .page-transition {
-  animation: fadeIn 0.5s ease-in-out; /* Adjust duration and timing function as needed */
+  animation: fadeIn 0.5s ease-in-out;
 }
-
-/* Removed all custom scrollbar styles */
 
 @custom-variant dark (&:is(.dark *));
 
-/* :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-} */
 
 :root {
 
@@ -302,13 +232,10 @@ button:focus-visible {
     @apply border-border outline-ring/50;
   }
   html {
-    /* Removed scrollbar-gutter */
-    /* Set base font size here */
+    /* base font size */
     font-size: 14px;
   }
   body {
     @apply bg-background text-foreground;
-    /* Removed scrollbar-gutter, scrollbar-width, scrollbar-color */
   }
-  /* Removed commented out rule */
 }

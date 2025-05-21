@@ -10,9 +10,12 @@ import { About } from './pages/About'
 import { Work } from './pages/Work';
 // import { Home } from './pages/Home';
 // import { Start } from './pages/Start';
-import { SearchTable } from './components/SearchTable';
+import { SearchTable } from './pages/SearchTable';
 import { Projects } from './pages/Projects';
 import { Photography } from './pages/Photography';
+import { WorkDetail } from './pages/WorkDetail';
+import { ProjectDetail } from './pages/ProjectDetail';
+import { WorkCompanyDetail } from './pages/WorkCompanyDetail';
 
 const router = createBrowserRouter([
   // {
@@ -33,8 +36,20 @@ const router = createBrowserRouter([
           element: <Work />,
         },
         {
+          path: "work/:companyName",
+          element: <WorkCompanyDetail />,
+        },
+        {
+          path: "work/:companyName/:projectName",
+          element: <WorkDetail />,
+        },
+        {
           path: "projects",
           element: <Projects />,
+        },
+        {
+          path: "projects/:projectName",
+          element: <ProjectDetail />,
         },
         {
           path: "photography",

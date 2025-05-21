@@ -1,9 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom'
-import {
-  SidebarProvider,
-} from "@/components/ui/sidebar" // Keep this path as ui/sidebar is likely still in components
-import { SideBar } from './SideBar' // Updated import name and path
-import { Header } from './Header' // Updated import name and path
+import { SidebarProvider } from "@/components/ui/sidebar" 
+import { SideBar } from './SideBar' 
+import { Header } from './Header' 
 
 /**
  * Layout component defines the main structure of the application.
@@ -18,28 +16,25 @@ export function Layout() { // Renamed component
   return (
     <div className="[--header-height:calc(theme(spacing.14))] min-h-screen flex flex-col">
       <SidebarProvider className="flex flex-col flex-grow" defaultOpen={true}>
-        {/* Header is outside the main grid, visible only on mobile */}
+        {/* Header visible only on mobile */}
         <Header />
-        {/* Main content area: responsive grid for md+ screens - Removed gap */}
+        {/* Main content grid (md+) */}
         <div className="flex-grow md:grid md:grid-cols-4">
-          {/* Column 1: Left Spacer (visible md+) */}
+          {/* Left Spacer (md+) */}
           <div className="hidden md:block md:col-span-1" />
           
-          {/* Column 2 & 3: Main Content Area (visible md+) */}
-          {/* Removed SidebarInset from wrapping the Outlet div */}
-          {/* Added h-full, overflow-y-auto, and style directly here */}
+          {/* Main Content Area (md+) */}
+          {/* Added h-full, overflow-y-auto for scrolling, and stable scrollbar gutter */}
           <div className="main-content-area md:col-span-2 h-full overflow-y-auto" style={{ scrollbarGutter: 'stable' }}> 
-            {/* Wrap Outlet with a div that has a key based on pathname and the transition class */}
-            {/* Restored p-4 class */}
+            {/* Keyed div for page transitions */}
             <div key={location.pathname} className="page-transition p-4">
               <Outlet />
             </div>
           </div>
 
-          {/* Column 4: Right Sidebar (visible md+) */}
-          {/* On mobile, SideBar functions as offcanvas */}
+          {/* Right Sidebar (md+) */}
+          {/* On mobile, SideBar functions as offcanvas via SidebarProvider */}
           <div className="md:col-span-1">
-            {/* SidebarInset might be needed here if the sidebar itself uses it, let's keep SideBar for now */}
             <SideBar side="right" /> {/* Updated component name */}
           </div>
         </div>

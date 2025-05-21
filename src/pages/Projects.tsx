@@ -1,5 +1,4 @@
-import { Key } from 'react'; // Import Key for list rendering
-// Import project data from the new JSON file
+import { Key } from 'react'; 
 import projectsData from '../data/projects.json';
 import { 
   Card, 
@@ -7,16 +6,16 @@ import {
   CardDescription, 
   CardHeader, 
   CardTitle 
-} from "@/components/ui/card"; // Import Card components
+} from "@/components/ui/card";
 import { 
   Accordion, 
   AccordionContent, 
   AccordionItem, 
   AccordionTrigger 
-} from "@/components/ui/accordion"; // Import Accordion components
-import { Plus, Github, ExternalLink } from "lucide-react"; // Import Plus, Github, and ExternalLink icons
+} from "@/components/ui/accordion";
+import { Plus, Github, ExternalLink } from "lucide-react";
+import { Link } from 'react-router-dom';
 
-// Update the Project interface to match projects.json structure
 interface Project {
   title: string;
   summary: string;
@@ -24,25 +23,18 @@ interface Project {
   technologies: string[];
   type: string;
   labels: string[];
-  company: string | null; // Can be null
+  company: string | null;
   dateFrom: string;
   dateUntil: string;
   url: string;
   images: string[];
   media: string[];
-  github?: string; // Added optional github property
+  github?: string;
 }
 
-/**
- * Projects page component.
- * Displays a list of projects using Card components.
- */
 export function Projects() {
   return (
-    // Changed items-start to items-end
     <div className="p-4 pt-8 flex flex-col items-end space-y-8">
-      
-      {/* Introductory text */}
       <div className="w-full">
         <h2 className="text-3xl tracking-tight mb-4">Projects</h2>
         <p className="text-muted-foreground">
@@ -50,7 +42,6 @@ export function Projects() {
         </p>
       </div>
 
-      {/* Map over the imported project data */}
       {projectsData.map((project, index) => (
         <ProjectCard key={index} project={project} index={index} />
       ))}
@@ -59,7 +50,6 @@ export function Projects() {
   );
 }
 
-// Define the ProjectCard component, styled similarly to WorkCard
 const ProjectCard = ({ project, index }: { project: Project, index: number }) => {
   return (
     // Apply compact card styling
@@ -69,7 +59,17 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
           {/* Header with title, summary, and trigger */}
           <CardHeader className="px-0 pb-2"> 
             <div className="mb-2">
-              <CardTitle className="mb-2">{project.title}</CardTitle>
+              <CardTitle className="mb-2">
+                <Link 
+                  to={`/projects/${project.title
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-|-$/g, '')}`}
+                  className="hover:underline"
+                >
+                  {project.title}
+                </Link>
+              </CardTitle>
               <CardDescription className="text-md">{project.summary}</CardDescription>
             </div>
             {/* Update flex container to include Date, Company, Links, and Trigger */}
