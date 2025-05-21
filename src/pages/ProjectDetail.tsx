@@ -4,6 +4,7 @@ import projectsData from '../data/projects.json';
 import { Globe, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/BackButton";
+import { ExpandableTags } from "@/components/ui/ExpandableTags";
 
 // Interface matching the data structure in projects.json
 interface Project {
@@ -118,13 +119,7 @@ export const ProjectDetail = () => {
       {project.technologies && project.technologies.length > 0 && (
         <div className="w-full">
           <h3 className="text-xl mb-4">Technologies</h3>
-          <div className="flex flex-wrap gap-2 mb-6">
-            {project.technologies.map((tech, index) => (
-              <span key={index} className="bg-secondary/30 text-muted-foreground px-3 py-1 rounded-md">
-                {tech}
-              </span>
-            ))}
-          </div>
+          <ExpandableTags tags={project.technologies} />
         </div>
       )}
 
@@ -132,13 +127,7 @@ export const ProjectDetail = () => {
       {project.labels && project.labels.length > 0 && (
         <div className="w-full">
           <h3 className="text-xl mb-4">Categories</h3>
-          <div className="flex flex-wrap gap-2 mb-6">
-            {project.labels.map((label, index) => (
-              <span key={index} className="bg-secondary/30 text-muted-foreground px-3 py-1 rounded-md">
-                {label}
-              </span>
-            ))}
-          </div>
+          <ExpandableTags tags={project.labels} />
         </div>
       )}
       

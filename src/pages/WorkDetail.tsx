@@ -4,6 +4,7 @@ import workData from '../data/work.json';
 import { Globe, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/BackButton";
+import { ExpandableTags } from "@/components/ui/ExpandableTags";
 
 // Interface matching the data structure in work.json
 interface Activity {
@@ -128,13 +129,7 @@ export const WorkDetail = () => {
       {project.techStack && project.techStack.length > 0 && (
         <div className="w-full">
           <h3 className="text-xl mb-4">Tech Stack</h3>
-          <div className="flex flex-wrap gap-2 mb-6">
-            {project.techStack.map((tech, index) => (
-              <span key={index} className="bg-secondary/30 text-muted-foreground px-3 py-1 rounded-md">
-                {tech}
-              </span>
-            ))}
-          </div>
+          <ExpandableTags tags={project.techStack} />
         </div>
       )}
 
@@ -142,13 +137,7 @@ export const WorkDetail = () => {
       {project.features && project.features.length > 0 && (
         <div className="w-full">
           <h3 className="text-xl mb-4">Features</h3>
-          <div className="flex flex-wrap gap-2 mb-6">
-            {project.features.map((feature, index) => (
-              <span key={index} className="bg-secondary/30 text-muted-foreground px-3 py-1 rounded-md">
-                {feature}
-              </span>
-            ))}
-          </div>
+          <ExpandableTags tags={project.features} />
         </div>
       )}
 

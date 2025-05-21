@@ -6,6 +6,8 @@ import { HyphenLogo } from "@/components/icons/HyphenLogo";
 import { IrArquitecturaLogo } from "@/components/icons/IrArquitecturaLogo";
 import { WorkCard } from "@/components/WorkCard";
 import { BackButton } from "@/components/ui/BackButton";
+import { ArrowUp, ArrowDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // Company information from Work.tsx
 const companyInfo = [
@@ -179,24 +181,16 @@ export const WorkCompanyDetail = () => {
           <h3 className="text-2xl font-semibold tracking-tight">Projects</h3>
           
           {/* Sorting controls */}
-          <div className="flex items-center justify-end gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Date:</span>
-              <div className="flex gap-1">
-                <button
-                  onClick={() => setSortAscending(true)}
-                  className={`text-xs px-2 py-1 rounded ${sortAscending ? 'bg-secondary/50 text-foreground' : 'text-muted-foreground'}`}
-                >
-                  Oldest first
-                </button>
-                <button
-                  onClick={() => setSortAscending(false)}
-                  className={`text-xs px-2 py-1 rounded ${!sortAscending ? 'bg-secondary/50 text-foreground' : 'text-muted-foreground'}`}
-                >
-                  Newest first
-                </button>
-              </div>
-            </div>
+          <div className="flex items-center justify-end gap-4 mb-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSortAscending(!sortAscending)}
+              className="text-xs px-2 h-6 flex items-center gap-2"
+            >
+              <span className="text-muted-foreground">date</span>
+              {sortAscending ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+            </Button>
           </div>
         </div>
         

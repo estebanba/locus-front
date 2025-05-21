@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation, ScrollRestoration } from 'react-router-dom'
 import { SidebarProvider } from "@/components/ui/sidebar" 
 import { SideBar } from './SideBar' 
 import { Header } from './Header' 
@@ -15,6 +15,9 @@ export function Layout() { // Renamed component
 
   return (
     <div className="[--header-height:calc(theme(spacing.14))] min-h-screen flex flex-col">
+      {/* Use React Router's built-in ScrollRestoration component */}
+      <ScrollRestoration />
+      
       <SidebarProvider className="flex flex-col flex-grow" defaultOpen={true}>
         {/* Header visible only on mobile */}
         <Header />
@@ -25,7 +28,7 @@ export function Layout() { // Renamed component
           
           {/* Main Content Area (md+) */}
           {/* Added h-full, overflow-y-auto for scrolling, and stable scrollbar gutter */}
-          <div className="main-content-area md:col-span-2 h-full overflow-y-auto" style={{ scrollbarGutter: 'stable' }}> 
+          <div className="main-content-area md:col-span-2 h-full overflow-y-auto scroll-smooth" style={{ scrollbarGutter: 'stable' }}> 
             {/* Keyed div for page transitions */}
             <div key={location.pathname} className="page-transition p-4">
               <Outlet />
