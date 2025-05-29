@@ -80,7 +80,7 @@ export const ProjectDetail = () => {
 
       {/* Project header */}
       <div className="w-full">
-        <div className="flex justify-between items-start mb-2">
+        <div className="mb-2">
           <h1 className="text-3xl tracking-tight">{project.title}</h1>
           <div className="text-muted-foreground">
             {project.dateFrom} {project.dateUntil ? `- ${project.dateUntil}` : ''}
@@ -89,25 +89,27 @@ export const ProjectDetail = () => {
         {project.company && (
           <h2 className="text-xl text-muted-foreground mb-4">{project.company}</h2>
         )}
-        <p className="text-lg mb-8">{project.summary}</p>
+        <p className="text-lg mb-8">{project.summary ? project.summary : 'No summary available.'}</p>
       </div>
 
       {/* Project details */}
-      <div className="w-full">
-        <h3 className="text-xl mb-4">Project Details</h3>
-        <ul className="list-disc list-inside text-muted-foreground space-y-3 mb-8 pl-6">
-          {project.details?.map((detail, index) => (
-            <li className="text-md" key={index}>{detail}</li>
-          ))}
-        </ul>
-      </div>
+      {project.details && project.details.length > 0 && (
+        <div className="w-full">
+          <h3 className="text-xl mb-4">Project Details</h3>
+          <ul className="list-disc list-inside text-muted-foreground space-y-3 mb-8 pl-6">
+            {project.details.map((detail, index) => (
+              <li className="text-md" key={index}>{detail}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Project images (if available) */}
-      {project.images && project.images.length > 0 && (
+      {project.images && Array.isArray(project.images) && project.images.length > 0 && (
         <div className="w-full">
           <h3 className="text-xl mb-4">Gallery</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {project.images.map((image, index) => (
+            {project.images.map((image: string, index: number) => (
               <img 
                 key={index} 
                 src={image} 

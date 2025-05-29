@@ -49,7 +49,7 @@ export interface ProjectItem {
   name: string; // Added for slug/ID
   imagesPath: string; // Added for Cloudinary base path
   title: string;
-  summary?: string;
+  summary: string | undefined;
   details?: string[];
   technologies?: string[];
   type?: string;
@@ -58,10 +58,10 @@ export interface ProjectItem {
   dateFrom?: string;
   dateUntil?: string;
   url?: string;
-  // images?: string[]; // This will be superseded by dynamic fetching via getItemImageUrls
+  images?: string[]; // This will be superseded by dynamic fetching via getItemImageUrls
   media?: { name: string; url: string; }[];
   github?: string;
-  [key: string]: unknown;
+  [key: string]: unknown; // It's generally better to avoid this if possible, or make it more specific
 }
 
 export interface PhotoData {
@@ -97,7 +97,7 @@ export async function getWorkData(): Promise<WorkItem[]> {
 export async function getProjectsData(): Promise<ProjectItem[]> {
   // Assuming projects.json is served from /data/projects by your backend
   // If it's still locus-back/src/data/projects.json, adjust backend route accordingly
-  return fetchAPI<ProjectItem[]>('/data/projects'); 
+  return fetchAPI<ProjectItem[]>('/data/projects.json'); 
 }
 
 export async function getPhotosData(): Promise<PhotoData> {

@@ -3,7 +3,6 @@ import { motion, Variants } from "framer-motion";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BackButton } from "@/components/ui/BackButton";
-import { Input } from "@/components/ui/input";
 import { getWorkData, getProjectsData } from '@/services/api';
 import type { WorkItem, ProjectItem as ProjectItemType } from '@/services/api';
 
