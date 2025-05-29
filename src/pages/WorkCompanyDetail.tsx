@@ -57,7 +57,7 @@ interface WorkCardProps {
 }
 
 const WorkCard = ({ activity, companyName }: WorkCardProps) => {
-  const projectSlug = activity.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const projectSlug = activity.name || activity.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const companySlug = companyName?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
   return (

@@ -8,36 +8,39 @@ import { BackButton } from "@/components/ui/BackButton";
 import { ExpandableTags } from "@/components/ui/ExpandableTags";
 import { ImageCarousel } from "@/components/ui/ImageCarousel";
 
-// Import company logos
-import { TeslaIcon } from "@/components/icons/TeslaIcon";
-import { HyphenLogo } from "@/components/icons/HyphenLogo";
-import { IrArquitecturaLogo } from "@/components/icons/IrArquitecturaLogo";
+// Import company logos - These might still be used elsewhere, or can be removed if WorkDetail was the only consumer.
+// For now, assuming they might be used by other components or for future features.
+// If not, they can be cleaned up in a separate step.
+// import { TeslaIcon } from "@/components/icons/TeslaIcon";
+// import { HyphenLogo } from "@/components/icons/HyphenLogo";
+// import { IrArquitecturaLogo } from "@/components/icons/IrArquitecturaLogo";
 
 // Refined IconProps to extend React.SVGAttributes for better type compatibility
-interface IconProps extends React.SVGAttributes<SVGSVGElement> {
-  className?: string;
-  color?: string;
-}
+// interface IconProps extends React.SVGAttributes<SVGSVGElement> {
+// className?: string;
+// color?: string;
+// }
 
-const companyIconMap: Record<string, React.FC<IconProps>> = {
-  "Tesla": TeslaIcon as React.FC<IconProps>,
-  "Hyphen": HyphenLogo as React.FC<IconProps>,
-  "IR arquitectura": IrArquitecturaLogo as React.FC<IconProps>,
-};
+// companyIconMap is removed as it's no longer used in this component
+// const companyIconMap: Record<string, React.FC<IconProps>> = {
+//   "Tesla": TeslaIcon as React.FC<IconProps>,
+//   "Hyphen": HyphenLogo as React.FC<IconProps>,
+//   "IR arquitectura": IrArquitecturaLogo as React.FC<IconProps>,
+// };
 
-// Helper function to get specific sizing class per company for WorkDetail page
-const getCompanyIconSizeClass = (companyName?: string): string => {
-  switch (companyName) {
-    case "Tesla":
-      return "h-6 w-auto"; // Make Tesla smaller
-    case "IR arquitectura":
-      return "h-10 w-auto"; // Make IR larger
-    case "Hyphen":
-      return "h-8 w-auto"; // Default/medium size for Hyphen
-    default:
-      return "h-8 w-auto"; // Fallback size
-  }
-};
+// getCompanyIconSizeClass is removed as it's no longer used in this component
+// const getCompanyIconSizeClass = (companyName?: string): string => {
+//   switch (companyName) {
+//     case "Tesla":
+//       return "h-6 w-auto"; // Make Tesla smaller
+//     case "IR arquitectura":
+//       return "h-10 w-auto"; // Make IR larger
+//     case "Hyphen":
+//       return "h-8 w-auto"; // Default/medium size for Hyphen
+//     default:
+//       return "h-8 w-auto"; // Fallback size
+//   }
+// };
 
 export const WorkDetail = () => {
   const { companyName, projectName } = useParams<{ companyName: string; projectName: string }>();
@@ -169,29 +172,16 @@ export const WorkDetail = () => {
   }
 
   // --- If we reach here, details are loaded, and initial image check is complete --- 
-  const CompanyIcon = projectDetails.company ? companyIconMap[projectDetails.company] : null;
-  const iconSizeClass = getCompanyIconSizeClass(projectDetails.company);
   const carouselImageUrls = images.map(img => img.secure_url);
 
   return (
     <div className="p-4 pt-8 flex flex-col space-y-8">
       <BackButton text={`Back to ${formattedCompanyName}`} variant="text" />
 
+      {/* Simplified header: Title, then Date below it */}
       <div className="w-full">
-        <h1 className="text-3xl tracking-tight mb-2">{projectDetails.title}</h1>
-        
-        <div className="text-muted-foreground mb-4 flex items-center gap-x-3">
-          {CompanyIcon && (
-            projectDetails.company === "Tesla" ? (
-              <span style={{ color: '#CC0000' }}> 
-                <CompanyIcon className={iconSizeClass} />
-              </span>
-            ) : projectDetails.company === "Hyphen" ? (
-              <CompanyIcon className={iconSizeClass} />
-            ) : (
-              <CompanyIcon className={iconSizeClass} />
-            )
-          )}
+        <h1 className="text-3xl tracking-tight mb-1">{projectDetails.title}</h1>
+        <div className="text-muted-foreground mb-4">
           <span>{projectDetails.dateFrom} {projectDetails.dateUntil ? `- ${projectDetails.dateUntil}` : ''}</span>
         </div>
         <p className="text-lg mb-8">{projectDetails.summary}</p>
