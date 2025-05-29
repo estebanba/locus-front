@@ -76,7 +76,7 @@ export function Photography() {
   if (error) {
     return (
       <div className="container mx-auto py-8 px-4">
-         <div className="mb-8">
+        <div className="mb-8">
           <h1 className="text-3xl mb-2">Photography</h1>
           <p className="text-muted-foreground">A collection of my favorite photographs from around the world.</p>
         </div>
@@ -110,10 +110,10 @@ export function Photography() {
       </div>
 
       {filteredPhotos.length > 0 ? (
-        <PhotoGallery 
+      <PhotoGallery 
           photos={filteredPhotos} 
-          className="mb-8" 
-        />
+        className="mb-8" 
+      />
       ) : (
         <p className="text-center text-muted-foreground">No photos found for the selected category.</p>
       )}

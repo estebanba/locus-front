@@ -59,7 +59,7 @@ export const Projects = () => {
   return (
     <div className="p-4 pt-8 flex flex-col items-center">
       <div className="w-full max-w-4xl space-y-6">
-        <div className="w-full">
+      <div className="w-full">
              <BackButton variant="text" />
         </div>
         
@@ -89,7 +89,7 @@ const ProjectCard = ({ project, index }: { project: ProjectItem, index: number }
     <Card className="w-full border-none shadow-none relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1/2 after:h-px after:bg-border pb-2">
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value={`item-${index}`} className="border-none">
-          <CardHeader className="px-0 pb-2">
+          <CardHeader className="px-0 pb-2"> 
             <div className="mb-2">
               <CardTitle className="mb-2">
                 <Link 
@@ -132,28 +132,28 @@ const ProjectCard = ({ project, index }: { project: ProjectItem, index: number }
                   )}
                 </div>
               </div>
-              <AccordionTrigger className="p-1 rounded-md hover:bg-accent hover:no-underline [&[data-state=open]>svg]:rotate-45 mr-0">
+              <AccordionTrigger className="p-1 rounded-md hover:bg-accent hover:no-underline [&[data-state=open]>svg]:rotate-45 mr-0"> 
                 <Plus className="h-5 w-5 shrink-0 transition-transform duration-200" />
               </AccordionTrigger>
             </div>
           </CardHeader>
-          <CardContent className="px-0 pt-2">
+          <CardContent className="px-0 pt-2"> 
             <AccordionContent className="pl-6">
               {project.details && project.details.length > 0 && (
-                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mb-6">
+              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mb-6">
                   {project.details.map((detail: string, detailIndex: Key) => (
-                    <li key={detailIndex}>{detail}</li>
-                  ))}
-                </ul>
+                  <li key={detailIndex}>{detail}</li>
+                ))}
+              </ul>
               )}
               {project.technologies && project.technologies.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-3">
+              <div className="flex flex-wrap gap-1 mb-3">
                   {project.technologies.map((tech: string, techIndex: Key) => (
-                    <span key={techIndex} className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded">
-                      {tech}
-                    </span>
-                  ))}
-                </div>
+                  <span key={techIndex} className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded">
+                    {tech}
+                  </span>
+                ))}
+              </div>
               )}
             </AccordionContent>
           </CardContent>
