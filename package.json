@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.7",
-    "@radix-ui/react-dialog": "^1.1.10",
+    "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.6",
     "@radix-ui/react-select": "^2.2.4",
     "@radix-ui/react-separator": "^1.1.2",
@@ -21,6 +21,9 @@
     "@tailwindcss/vite": "^4.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
+    "embla-carousel-wheel-gestures": "^8.0.2",
     "framer-motion": "^12.7.4",
     "lucide-react": "^0.487.0",
     "react": "^19.0.0",

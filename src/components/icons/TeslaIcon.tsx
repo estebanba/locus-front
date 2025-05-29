@@ -3,7 +3,7 @@ import React from 'react';
 /**
  * Tesla SVG Icon Component
  * Renders the Tesla logo using an inline SVG.
- * Accepts standard SVG props like className, width, height, etc.
+ * Sets a default height of 24px (approx 1.5rem) and allows width to scale automatically.
  */
 export const TeslaIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
   return (
@@ -12,7 +12,8 @@ export const TeslaIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
       viewBox="0 0 342 35"
       aria-hidden="true"
       role="img"
-      {...props} // Spread any additional props (like className)
+      height="16" // Set default height
+      {...props} // Spread any additional props (like className, which could override height)
     >
       <path
         fill="currentColor" // Use currentColor to inherit text color

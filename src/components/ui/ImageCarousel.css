@@ -1,0 +1,251 @@
+.embla {
+  position: relative; /* Ensure this is set for absolute positioning of controls */
+  max-width: 100%; /* Changed from 48rem to fill container */
+  margin: auto;
+  --slide-height: 48vh; /* This is effectively viewport content height */
+  --slide-spacing: 1rem; /* Adjusted for consistent gaps between image frames */
+  /* --slide-size: 80%; */ /* REMOVED: Slides are now auto-width */
+  /* overflow: hidden; */ /* REMOVE overflow hidden from the main container, let viewport handle it */
+  height: var(--slide-height); /* Adjust .embla height to match viewport content height */
+}
+
+.embla__viewport {
+  overflow: hidden;
+  border-radius: 1.5rem; /* Apply rounded corners to the viewport, this is the main outer rounding */
+}
+
+.embla__container {
+  display: flex;
+  touch-action: pan-y pinch-zoom;
+  /* margin-left: calc(var(--slide-spacing) * -1); */ /* REMOVED: Not used with auto-width slides and margin-right spacing */
+}
+
+.embla__slide {
+  /* transform: translate3d(0, 0, 0); */ /* Can be removed if parallax handles all transform */
+  /* flex: 0 0 var(--slide-size); */ /* REMOVED: Slides are auto-width */
+  width: auto; /* Allow slide to size to its content */
+  flex-shrink: 0; /* Prevent flexbox from shrinking the slide */
+  min-width: 0; /* Standard flex item reset */
+  /* padding-left: var(--slide-spacing); */ /* REMOVED: Spacing handled by margin on parallax frame */
+  position: relative; /* Ensure slide is a positioning context for parallax layer if needed */
+  /* display: flex; */ /* REMOVED: No longer centering content within a larger fixed-size slide */
+  /* justify-content: center; */ /* REMOVED */
+  /* align-items: center; */ /* REMOVED */
+}
+
+.embla__slide:first-child {
+  /* padding-left: 0; */ /* REMOVED */
+}
+
+.embla__slide__img {
+  /* Styles for the actual <img> tag inside parallax structure */
+  display: block;
+  height: 100%; /* Image should fill the parallax layer, which is sized by --slide-height */
+  width: 100%;  /* Image should fill the parallax layer */
+  /* object-fit is now on .embla__parallax__img */
+}
+
+/* Controls are now outside/below the viewport */
+.embla__controls {
+  display: flex;
+  flex-direction: column; /* Stack buttons and dots vertically */
+  align-items: center; /* Center items horizontally */
+  padding: 1rem; 
+  margin-top: 1rem; 
+}
+
+.embla__buttons {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  margin-bottom: 0.5rem; /* Add some space between buttons and dots */
+}
+
+.embla__button {
+  -webkit-tap-highlight-color: rgba(var(--text-high-contrast-rgb-value), 0.5);
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: transparent; /* Target: transparent background */
+  touch-action: manipulation;
+  display: inline-flex;
+  text-decoration: none;
+  cursor: pointer;
+  border: 0.05rem solid var(--detail-high-contrast); /* Thinner border */
+  padding: 0;
+  margin: 0;
+  /* box-shadow: inset 0 0 0 0.1rem var(--detail-medium-contrast); */ /* REMOVED box-shadow */
+  width: 3rem; /* Smaller button */
+  height: 3rem; /* Smaller button */
+  border-radius: 50%;
+  color: var(--text-high-contrast); /* Target: light icon on dark background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.embla__button:disabled {
+  color: var(--detail-medium-contrast); /* Dimmer icon for disabled */
+  border-color: var(--detail-medium-contrast); /* Dimmer border */
+  cursor: default;
+}
+
+.embla__button__svg {
+  width: 45%; /* Adjusted for smaller button */
+  height: 45%; /* Adjusted for smaller button */
+}
+
+/* Styles for side arrow buttons */
+.embla__button--prev-side,
+.embla__button--next-side {
+  position: absolute; /* Position relative to the .embla container */
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%); /* Adjust for exact vertical centering */
+  z-index: 1; /* Ensure they are above the slides but below expanded image modal */
+  /* Inherit general .embla__button styles for appearance */
+  /* background-color: red; */ /* Temporary background removed */
+}
+
+.embla__button--prev-side {
+  left: -2.5rem; /* Overlap content by 0.5rem */
+}
+
+.embla__button--next-side {
+  right: -2.5rem; /* Overlap content by 0.5rem */
+}
+
+/* Media query to hide arrows on mobile */
+@media (max-width: 768px) {
+  .embla__button--prev-side,
+  .embla__button--next-side {
+    display: none;
+  }
+
+  /* Reduce carousel height on mobile */
+  .embla {
+    --slide-height: 32vh; /* New height for mobile */
+  }
+}
+
+/* Dots Styles */
+.embla__dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  /* flex-grow: 1; */ /* Removed to prevent dots from taking up all space */
+}
+
+.embla__dot {
+  -webkit-tap-highlight-color: rgba(var(--text-high-contrast-rgb-value), 0.5);
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: transparent; /* Dot itself is transparent, ::after is visible part */
+  touch-action: manipulation;
+  display: inline-flex;
+  text-decoration: none;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  margin: 0 0.4rem; /* Adjusted spacing */
+  width: 2rem; /* Clickable area */ 
+  height: 2rem; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.embla__dot:after {
+  /* This is the visible dot */
+  /* box-shadow: inset 0 0 0 0.1rem var(--detail-medium-contrast); */ /* REMOVED */
+  content: \'\'; /* Ensured content property */
+  display: block; /* Changed from flex to block for simplicity */
+  width: 0.7rem; /* Slightly smaller dot */
+  height: 0.7rem; /* Slightly smaller dot */
+  border-radius: 50%;
+  background-color: blue; /* TEMP: Debug color */
+  border: 0.1rem solid red; /* TEMP: Debug color */
+}
+
+.embla__dot--selected:after {
+  /* box-shadow: inset 0 0 0 0.1rem var(--text-body); */ /* REMOVED */
+  background-color: red; /* TEMP: Debug color */
+  border-color: blue; /* TEMP: Debug color */
+}
+
+/* Parallax styles from example */
+.embla__parallax {
+  border-radius: 1.5rem; /* Rounded corners for the image frame itself */
+  height: var(--slide-height); 
+  overflow: hidden; /* Clips image to this frame's rounded borders */
+  width: fit-content; /* Make container width fit the image */
+  max-width: 100%; /* Prevents frame from exceeding its slide container (which is auto) */
+  margin-right: var(--slide-spacing); /* Creates the consistent gap AFTER this image frame */
+  /* margin-left, etc. REMOVED */
+}
+
+.embla__parallax__layer {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center; /* Horizontally center the image */
+  align-items: center;   /* Vertically center the image */
+}
+
+.embla__parallax__img { 
+  /* max-width: 100%; */ /* REMOVED to allow image to be wider than slide, clipped by parallax container */
+  display: block; /* Ensure block behavior for width/height */
+  width: auto;    /* Width adjusts to maintain aspect ratio */
+  height: var(--slide-height); /* Explicitly set height */
+  /* object-fit: contain; */ /* Removed, as the element itself should be correctly sized */
+  border-radius: 1.5rem; /* Add border-radius */
+  overflow: hidden; /* Add overflow: hidden */
+} 
+
+/* Expanded Image Modal Styles */
+.expanded-image-backdrop {
+  position: fixed; /* Cover the entire viewport */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black backdrop */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it's on top of other content */
+  cursor: pointer; /* Indicate it can be clicked to close */
+}
+
+.expanded-image-content {
+  max-width: 90vw; /* Limit image width to 90% of viewport width */
+  max-height: 90vh; /* Limit image height to 90% of viewport height */
+  border-radius: 0.75rem; /* Optional: rounded corners for the expanded image */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Optional: add some shadow */
+  cursor: pointer; /* Base cursor for the image area */
+  object-fit: contain; /* Ensure the whole image is visible */
+  user-select: none; /* Prevent image text selection when clicking for nav */
+  -webkit-user-drag: none; /* Prevent image dragging */
+}
+
+.expanded-image-close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for button */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 44px; /* Size of the button */
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1001; /* Ensure button is above the image if they overlap */
+}
+
+.expanded-image-close-button:hover {
+  background: rgba(0, 0, 0, 0.7);
+} 

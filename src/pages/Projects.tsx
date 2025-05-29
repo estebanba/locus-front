@@ -1,89 +1,113 @@
-import { Key } from 'react'; 
-import projectsData from '../data/projects.json';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { 
-  Accordion, 
-  AccordionContent, 
-  AccordionItem, 
-  AccordionTrigger 
-} from "@/components/ui/accordion";
+import { useState, useEffect, Key } from 'react';
+import { getProjectsData } from '@/services/api';
+import type { ProjectItem } from '@/services/api';
+import { BackButton } from "@/components/ui/BackButton";
+// Imports for UI components used by the local ProjectCard
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Plus, Github, ExternalLink } from "lucide-react";
 import { Link } from 'react-router-dom';
 
-interface Project {
-  title: string;
-  summary: string;
-  details: string[];
-  technologies: string[];
-  type: string;
-  labels: string[];
-  company: string | null;
-  dateFrom: string;
-  dateUntil: string;
-  url: string;
-  images: string[];
-  media: string[];
-  github?: string;
-}
+export const Projects = () => {
+  const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export function Projects() {
-  return (
-    <div className="p-4 pt-8 flex flex-col items-end space-y-8">
-      <div className="w-full">
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getProjectsData();
+        setProjects(data || []);
+      } catch (e) {
+        console.error("Failed to fetch projects:", e);
+        setError(e instanceof Error ? e.message : "An unknown error occurred while fetching projects.");
+        setProjects([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-4 pt-8">
         <h2 className="text-3xl tracking-tight mb-4">Projects</h2>
-        <p className="text-muted-foreground">
-          Here are some of the personal and conceptual projects I've worked on.
+        <p className="text-muted-foreground mb-8">
+          A collection of projects I've worked on to learn new technologies and concepts.
         </p>
+        <div className="text-center py-10">Loading projects...</div>
       </div>
+    );
+  }
 
-      {projectsData.map((project, index) => (
-        <ProjectCard key={index} project={project} index={index} />
-      ))}
+  if (error) {
+    return (
+      <div className="p-4 pt-8">
+        <h2 className="text-3xl tracking-tight mb-4">Projects</h2>
+        <p className="text-muted-foreground mb-8">
+          A collection of projects I've worked on to learn new technologies and concepts.
+        </p>
+        <div className="text-center py-10 text-red-500">Error loading projects: {error}</div>
+      </div>
+    );
+  }
 
+  return (
+    <div className="p-4 pt-8 flex flex-col items-center">
+      <div className="w-full max-w-4xl space-y-6">
+        <div className="w-full">
+             <BackButton variant="text" />
+        </div>
+        
+        <h1 className="text-3xl font-bold">Projects</h1>
+        
+        <p className="text-muted-foreground">
+            A collection of projects I've worked on to learn new technologies and concepts.
+        </p>
+        {projects.length > 0 ? (
+            <div className="space-y-8">
+            {projects.map((project, index) => (
+                <ProjectCard key={index} project={project} index={index} />
+            ))}
+            </div>
+        ) : (
+            <p className="text-center text-muted-foreground">No projects to display.</p>
+        )}
+      </div>
     </div>
   );
-}
+};
 
-const ProjectCard = ({ project, index }: { project: Project, index: number }) => {
+// Restored local ProjectCard component definition
+// Ensure ProjectItem type from api.ts has all necessary fields (summary, details, technologies, etc.)
+const ProjectCard = ({ project, index }: { project: ProjectItem, index: number }) => {
   return (
-    // Apply compact card styling
-    <Card key={index} className="flex flex-col w-full border-none shadow-none relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1/2 after:h-px after:bg-border pb-2"> 
+    <Card className="w-full border-none shadow-none relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1/2 after:h-px after:bg-border pb-2">
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value={`item-${index}`} className="border-none">
-          {/* Header with title, summary, and trigger */}
-          <CardHeader className="px-0 pb-2"> 
+          <CardHeader className="px-0 pb-2">
             <div className="mb-2">
               <CardTitle className="mb-2">
                 <Link 
-                  to={`/projects/${project.title
-                    .toLowerCase()
-                    .replace(/[^a-z0-9]+/g, '-')
-                    .replace(/^-|-$/g, '')}`}
+                  to={`/projects/${project.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
                   className="hover:underline"
                 >
                   {project.title}
                 </Link>
               </CardTitle>
-              <CardDescription className="text-md">{project.summary}</CardDescription>
+              {project.summary && <CardDescription className="text-md">{project.summary}</CardDescription>}
             </div>
-            {/* Update flex container to include Date, Company, Links, and Trigger */}
             <div className="flex justify-between items-center mt-2">
-              {/* Left side: Date, Company, Links */}
-              <div className="flex items-center gap-x-4"> {/* Group left items */}
-                {/* Display Date and Company (if available) */}
+              <div className="flex items-center gap-x-4">
                 <p className="text-sm text-muted-foreground">
                   {project.dateFrom} {project.dateUntil ? `- ${project.dateUntil}` : ''}
                   {project.company && ` • ${project.company}`}
                 </p>
-                {/* Links Row - Moved here */}
-                <div className="flex items-center gap-x-3"> {/* Reduced gap for links */}
-                  {/* GitHub Link (conditional) */}
+                <div className="flex items-center gap-x-3">
                   {project.github && (
                     <a 
                       href={project.github} 
@@ -95,7 +119,6 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
                       <Github className="h-4 w-4" />
                     </a>
                   )}
-                  {/* Live URL Link (conditional) */}
                   {project.url && (
                     <a 
                       href={project.url} 
@@ -109,31 +132,29 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
                   )}
                 </div>
               </div>
-
-              {/* Right side: Accordion Trigger */}
-              <AccordionTrigger className="p-1 rounded-md hover:bg-accent hover:no-underline [&[data-state=open]>svg]:rotate-45 mr-0"> 
+              <AccordionTrigger className="p-1 rounded-md hover:bg-accent hover:no-underline [&[data-state=open]>svg]:rotate-45 mr-0">
                 <Plus className="h-5 w-5 shrink-0 transition-transform duration-200" />
               </AccordionTrigger>
             </div>
           </CardHeader>
-
-          {/* Content with details and technologies */}
-          <CardContent className="px-0 pt-2"> 
+          <CardContent className="px-0 pt-2">
             <AccordionContent className="pl-6">
-              {/* Details list */}
-              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mb-6">
-                {project.details.map((detail: string, detailIndex: Key | null | undefined) => (
-                  <li key={detailIndex}>{detail}</li>
-                ))}
-              </ul>
-              {/* Technologies */}
-              <div className="flex flex-wrap gap-1 mb-3">
-                {project.technologies.map((tech: string, techIndex: Key | null | undefined) => (
-                  <span key={techIndex} className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded">
-                    {tech}
-                  </span>
-                ))}
-              </div>
+              {project.details && project.details.length > 0 && (
+                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 mb-6">
+                  {project.details.map((detail: string, detailIndex: Key) => (
+                    <li key={detailIndex}>{detail}</li>
+                  ))}
+                </ul>
+              )}
+              {project.technologies && project.technologies.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {project.technologies.map((tech: string, techIndex: Key) => (
+                    <span key={techIndex} className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              )}
             </AccordionContent>
           </CardContent>
         </AccordionItem>

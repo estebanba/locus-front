@@ -1,59 +1,63 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import projectsData from '../data/projects.json';
+import { getProjectsData } from '@/services/api'; // UPDATED: Import from api.ts
+import type { ProjectItem as Project } from '@/services/api'; // UPDATED: Import type, alias as Project
 import { Globe, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/BackButton";
 import { ExpandableTags } from "@/components/ui/ExpandableTags";
 
-// Interface matching the data structure in projects.json
-interface Project {
-  title: string;
-  summary: string;
-  details: string[];
-  technologies: string[];
-  type: string;
-  labels: string[];
-  company: string | null;
-  dateFrom: string;
-  dateUntil: string;
-  url: string;
-  images: string[];
-  media: string[];
-  github?: string;
-}
+// Interface matching the data structure (assuming ProjectItem from api.ts is compatible)
+// If ProjectItem is not detailed enough, you might need to refine it in api.ts
+// or use a more specific local type and cast, e.g. const projectsData = await getProjectsData() as LocalProject[];
 
 export const ProjectDetail = () => {
-  // Get URL parameters from the dynamic route
-  const { projectName } = useParams();
+  const { projectName } = useParams<{ projectName: string }>();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Find the matching project from the projects data
-    if (projectName) {
-      // Find project with matching title (more flexible matching)
-      const foundProject = projectsData.find(item => {
-        // Create a slug from the item title for comparison - handle special characters
-        const itemSlug = item.title
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-') // Replace any non-alphanumeric chars with dash
-          .replace(/^-|-$/g, '');       // Remove leading/trailing dashes
-          
-        // Compare with the URL slug
-        return itemSlug === projectName.toLowerCase();
-      });
-      
-      if (foundProject) {
-        setProject(foundProject);
+    const fetchProjectDetails = async () => {
+      if (!projectName) {
+        setLoading(false);
+        setError("Project name not provided in URL.");
+        return;
       }
-      setLoading(false);
-    }
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const projectsData = await getProjectsData(); // NEW: Use service function
+
+        const foundProject = projectsData.find(item => {
+          const itemTitleSlug = item.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
+          return itemTitleSlug === projectName.toLowerCase();
+        });
+
+        if (foundProject) {
+          setProject(foundProject);
+        } else {
+          setError("Project not found.");
+        }
+      } catch (e) {
+        console.error("Failed to fetch project details:", e);
+        setError(e instanceof Error ? e.message : "An unknown error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjectDetails();
   }, [projectName]);
 
   // Show loading state
   if (loading) {
     return <div className="p-4 pt-8">Loading project details...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4 pt-8 text-red-500">Error: {error}</div>;
   }
 
   // Show error if project not found
@@ -92,7 +96,7 @@ export const ProjectDetail = () => {
       <div className="w-full">
         <h3 className="text-xl mb-4">Project Details</h3>
         <ul className="list-disc list-inside text-muted-foreground space-y-3 mb-8 pl-6">
-          {project.details.map((detail, index) => (
+          {project.details?.map((detail, index) => (
             <li className="text-md" key={index}>{detail}</li>
           ))}
         </ul>

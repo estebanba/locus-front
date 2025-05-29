@@ -1,5 +1,6 @@
 import * as React from "react"
 import { type VariantProps, cva } from "class-variance-authority"
+import { Slot } from "@radix-ui/react-slot"
 import { X } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -88,7 +89,7 @@ function SidebarProvider({
   return (
     <SidebarContext.Provider value={contextValue}>
       <div
-        data-slot="sidebar-wrapper"
+        // data-slot="sidebar-wrapper" // Temporarily remove this
         className={cn(
           "group/sidebar-wrapper flex min-h-svh w-full relative overflow-hidden",
           className
@@ -239,11 +240,11 @@ function SidebarMenuItem({ className, ...props }: React.ComponentProps<"li">) {
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center justify-end gap-2 overflow-hidden rounded-md p-2 text-right text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center justify-end gap-2 overflow-hidden rounded-md p-2 text-right text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-transparent focus-visible:ring-2 active:bg-transparent disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-transparent data-[active=true]:font-medium data-[state=open]:hover:bg-transparent [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        default: "hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent data-[active=true]:bg-transparent data-[state=open]:hover:bg-transparent",
       },
       size: {
         default: "h-8 text-sm",
@@ -267,7 +268,7 @@ function SidebarMenuButton({
   asChild?: boolean
   isActive?: boolean
 } & Pick<VariantProps<typeof sidebarMenuButtonVariants>, "variant" | "size">) {
-  const Comp = asChild ? React.Fragment : "button"
+  const Comp = asChild ? Slot : "button"
 
   return (
     <Comp

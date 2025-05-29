@@ -1,201 +1,172 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, Variants } from "framer-motion";
-import workData from "../data/work.json";
-import projectsData from "../data/projects.json";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BackButton } from "@/components/ui/BackButton";
+import { Input } from "@/components/ui/input";
+import { getWorkData, getProjectsData } from '@/services/api';
+import type { WorkItem, ProjectItem as ProjectItemType } from '@/services/api';
 
-// Represents an item in the search results, combining work and project data.
+// Unified interface for search results
 interface SearchItem {
   title: string;
-  summary: string;
-  details: string[];
-  technologies: string[];
-  type: string;
-  labels: string[];
-  company: string | null; // Null for projects.
-  dateFrom: string; // Year string, e.g., "2024".
-  dateUntil: string;
-  url: string;
-  images: string[]; // URLs or paths to images.
-  media: string[]; // URLs or paths to media.
-  github?: string; // Optional link to GitHub repository.
+  summary?: string;
+  details?: string[];
+  skills: string[];
+  type?: string;
+  labels?: string[];
+  company?: string | null;
+  dateFrom?: string;
+  dateUntil?: string;
+  url?: string;
+  images?: string[];
+  media?: { name: string; url: string }[];
+  github?: string;
+  source: 'work' | 'projects';
+  [key: string]: unknown;
 }
 
-// Helper function to map raw data items to the SearchItem interface.
-// This ensures that all fields, especially 'media', conform to the expected types.
-const mapRawDataItemToSearchItem = (item: Record<string, unknown>): SearchItem => {
-  let processedMedia: string[];
-
-  // Check if item.media is an array of objects with a 'url' property.
-  // If so, extract the 'url' strings.
-  if (Array.isArray(item.media) && item.media.length > 0 && typeof item.media[0] === 'object' && item.media[0] !== null && 'url' in item.media[0]) {
-    processedMedia = (item.media as Array<{url: string}>).map((mediaObject: { url: string }) => mediaObject.url);
-  } else if (Array.isArray(item.media)) {
-    // If item.media is an array, ensure all its elements are strings.
-    // This handles cases where it might already be string[] or an empty array.
-    processedMedia = item.media.filter((m: unknown): m is string => typeof m === 'string');
-  } else {
-    // If media is not an array or is undefined, default to an empty array.
-    processedMedia = [];
-  }
-
-  return {
-    // Spread the original item properties.
-    ...item,
-    // Assign the processed media array.
-    media: processedMedia,
-    // Ensure 'company' is explicitly null if not provided as a string, to match SearchItem's type (string | null).
-    company: typeof item.company === 'string' ? item.company : null,
-    // Ensure 'github' is undefined if not provided as a string, to match SearchItem's optional type (string | undefined).
-    github: typeof item.github === 'string' ? item.github : undefined,
-    // Provide default empty values for other required fields to prevent errors if data is missing/malformed.
-    title: (item.title as string) || "",
-    summary: (item.summary as string) || "",
-    details: Array.isArray(item.details) ? item.details.filter((d: unknown): d is string => typeof d === 'string') : [],
-    technologies: Array.isArray(item.technologies) ? item.technologies.filter((t: unknown): t is string => typeof t === 'string') : [],
-    type: (item.type as string) || "",
-    labels: Array.isArray(item.labels) ? item.labels.filter((l: unknown): l is string => typeof l === 'string') : [],
-    dateFrom: (item.dateFrom as string) || "",
-    dateUntil: (item.dateUntil as string) || "",
-    url: (item.url as string) || "",
-    images: Array.isArray(item.images) ? item.images.filter((i: unknown): i is string => typeof i === 'string') : [],
-  } as SearchItem; // Asserting as SearchItem after ensuring all fields are compliant.
-};
-
-// Combined dataset from work and project JSON files.
-// Raw data is cast before mapping, as their exact types are inferred from JSON.
-// Each item is processed by mapRawDataItemToSearchItem to ensure conformity with SearchItem.
-const combinedData: SearchItem[] = [
-  ...(workData as Array<Record<string, unknown>>).map(mapRawDataItemToSearchItem),
-  ...(projectsData as Array<Record<string, unknown>>).map(mapRawDataItemToSearchItem)
-];
-
-export const SearchTable = (): React.ReactElement => {
+export const SearchTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [allData, setAllData] = useState<SearchItem[]>([]);
+  const [filteredData, setFilteredData] = useState<SearchItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const [rawWorkData, rawProjectsData] = await Promise.all([
+          getWorkData(),
+          getProjectsData()
+        ]);
+
+        const mappedWorkData: SearchItem[] = rawWorkData.map((item: WorkItem) => ({
+          ...item,
+          skills: item.techStack || [],
+          source: 'work'
+        }));
+
+        const mappedProjectsData: SearchItem[] = rawProjectsData.map((item: ProjectItemType) => ({
+          ...item,
+          skills: item.technologies || [],
+          source: 'projects'
+        }));
+        
+        const combinedData = [...mappedWorkData, ...mappedProjectsData];
+        setAllData(combinedData);
+        setFilteredData(combinedData);
+      } catch (e) {
+        console.error("Failed to fetch data for search table:", e);
+        setError(e instanceof Error ? e.message : "An unknown error occurred while fetching data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!searchTerm) {
+      setFilteredData(allData);
+      return;
+    }
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    const filtered = allData.filter((item) => {
+      return Object.values(item).some((value) => {
+        if (value === null || typeof value === 'undefined') return false;
+        if (Array.isArray(value)) {
+          return value.some(el => typeof el === 'string' && el.toLowerCase().includes(lowerSearchTerm));
+        } else if (typeof value === 'object' && item.media && value === item.media) {
+          return (value as {name: string; url: string}[]).some(m => 
+            m.name.toLowerCase().includes(lowerSearchTerm) || 
+            m.url.toLowerCase().includes(lowerSearchTerm)
+          );
+        }
+        return String(value).toLowerCase().includes(lowerSearchTerm);
+      });
+    });
+    setFilteredData(filtered);
+  }, [searchTerm, allData]);
+
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setSearchTerm(event.target.value.toLowerCase());
+    setSearchTerm(event.target.value);
   };
 
-  // Filters the combined data based on the search term across all string/array values.
-  const filteredData = combinedData.filter((item: SearchItem) => {
-    return Object.values(item).some(
-      (value) =>
-        value != null &&
-        (Array.isArray(value) ? value.join(" ") : value)
-          .toString()
-          .toLowerCase()
-          .includes(searchTerm)
-    );
-  });
-
-  // Handle row click to navigate to detail page for work items or projects
   const handleRowClick = (item: SearchItem): void => {
-    // Check if this item is from work data (from workData.json)
-    // We can identify work items by checking if they're from specific companies
-    const workCompanies = ["Tesla", "Hyphen", "IR arquitectura"];
-    const isWorkItem = item.company && workCompanies.includes(item.company);
-    
-    // Create slug for project title
-    const projectSlug = item.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-    
-    if (isWorkItem) {
-      // Format company slug for work items
-      const companySlug = item.company!
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '');
-      
-      // Navigate to work detail page
-      navigate(`/work/${companySlug}/${projectSlug}`);
-    } else {
-      // For all other items (personal projects or projects from other companies like Ironhack)
-      // Navigate to the projects detail page
-      navigate(`/projects/${projectSlug}`);
+    const projectSlug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    if (item.source === 'work' && item.company) {
+      const companySlug = item.company.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      navigate(`/work/${companySlug}/${projectSlug}`, { state: { from: 'search' } });
+    } else if (item.source === 'projects') {
+      navigate(`/projects/${projectSlug}`, { state: { from: 'search' } });
     }
   };
 
-  // Animation variants for the container element.
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
+  const containerVariants: Variants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05 } } };
+  const rowVariants: Variants = { hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } };
 
-  // Animation variants for individual table rows.
-  const rowVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5
-      }
-    }
-  };
+  if (loading) {
+    return <div className="p-4 pt-8 text-center">Loading search data...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4 pt-8 text-center text-red-500">Error loading search data: {error}</div>;
+  }
 
   return (
     <div className="flex flex-col h-full pt-8 px-4">
-      {/* Back button */}
       <div className="mb-4">
         <BackButton text="Back" variant="text" />
       </div>
-      
-      {/* Top section: Search input */}
       <div className="shrink-0 space-y-4">
         <div className="w-full relative">
-          {/* Restore Search icon to its original state (no button, no onClick for navigation) */}
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-          />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             className="w-full px-4 py-2 pl-10 text-foreground bg-background border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-ring font-light"
             type="text"
-            placeholder="Search..."
+            placeholder="Search work, projects, skills..."
             value={searchTerm}
             onChange={handleSearch}
           />
         </div>
       </div>
-
-      {/* Bottom section: Scrollable table */}
       <div className="grow overflow-y-auto mt-8">
-        <motion.table
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="w-full"
-        >
+        {filteredData.length === 0 && !loading && searchTerm && (
+          <div className="text-center text-muted-foreground py-10">No results found for "{searchTerm}".</div>
+        )}
+        <motion.table variants={containerVariants} initial="hidden" animate="visible" className="w-full">
           <tbody>
             {filteredData
-              // Sort items by dateFrom (descending)
-              .sort((a: SearchItem, b: SearchItem) => b.dateFrom.localeCompare(a.dateFrom))
-              .map((item: SearchItem, index: number) => (
+              .sort((a, b) => {
+                const dateA = a.dateFrom || '';
+                const dateB = b.dateFrom || '';
+                if (dateB && !dateA) return -1;
+                if (!dateB && dateA) return 1;
+                if (dateB && dateA) {
+                  const comparison = dateB.localeCompare(dateA);
+                  if (comparison !== 0) return comparison;
+                }
+                return a.title.localeCompare(b.title);
+              })
+              .map((item, index) => (
                 <motion.tr
-                  key={`${item.title}-${index}`}
+                  key={`${item.title}-${item.company || 'project'}-${index}`}
                   variants={rowVariants}
-                  className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="border-b border-border hover:bg-muted/50 cursor-pointer transition-colors"
                   onClick={() => handleRowClick(item)}
                 >
-                  <td className="py-4">
+                  <td className="py-3 pr-2">
                     <div className="flex flex-col">
-                      <span className="text-gray-900 font-medium">
-                        {item.title}
-                      </span>
-                      {item.company && <span className="text-sm text-muted-foreground">{item.company}</span>}
+                      <span className="text-foreground font-medium truncate" title={item.title}>{item.title}</span>
+                      {item.company && <span className="text-xs text-muted-foreground truncate" title={item.company}>{item.company}</span>}
+                      {!item.company && item.type && <span className="text-xs text-muted-foreground truncate" title={item.type}>{item.type}</span>}
                     </div>
                   </td>
-                  <td className="py-4 text-right text-gray-500">
+                  <td className="py-3 pl-2 text-right text-sm text-muted-foreground whitespace-nowrap">
                     {item.dateFrom}
                   </td>
                 </motion.tr>

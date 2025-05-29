@@ -1,77 +1,164 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import workData from '../data/work.json';
+import { getWorkData, getItemImageUrls } from '@/services/api';
+import type { WorkItem as ProjectDetailData, CloudinaryImage } from '@/services/api';
 import { Globe, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/ui/BackButton";
 import { ExpandableTags } from "@/components/ui/ExpandableTags";
+import { ImageCarousel } from "@/components/ui/ImageCarousel";
 
-// Interface matching the data structure in work.json
-interface Activity {
-  title: string;
-  summary: string;
-  details: string[];
-  techStack: string[];
-  features: string[];
-  type: string;
-  labels: string[];
-  company: string;
-  dateFrom: string;
-  dateUntil: string;
-  url: string;
-  images: string[];
-  media: { name: string; url: string; }[];
-  github?: string;
+// Import company logos
+import { TeslaIcon } from "@/components/icons/TeslaIcon";
+import { HyphenLogo } from "@/components/icons/HyphenLogo";
+import { IrArquitecturaLogo } from "@/components/icons/IrArquitecturaLogo";
+
+// Refined IconProps to extend React.SVGAttributes for better type compatibility
+interface IconProps extends React.SVGAttributes<SVGSVGElement> {
+  className?: string;
+  color?: string;
 }
 
-export const WorkDetail = () => {
-  // Get URL parameters from the dynamic route
-  const { companyName, projectName } = useParams();
-  const [project, setProject] = useState<Activity | null>(null);
-  const [loading, setLoading] = useState(true);
-  
-  // Format company name for display in back button
-  const formattedCompanyName = companyName
-    ? companyName.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-    : '';
+const companyIconMap: Record<string, React.FC<IconProps>> = {
+  "Tesla": TeslaIcon as React.FC<IconProps>,
+  "Hyphen": HyphenLogo as React.FC<IconProps>,
+  "IR arquitectura": IrArquitecturaLogo as React.FC<IconProps>,
+};
 
+// Helper function to get specific sizing class per company for WorkDetail page
+const getCompanyIconSizeClass = (companyName?: string): string => {
+  switch (companyName) {
+    case "Tesla":
+      return "h-6 w-auto"; // Make Tesla smaller
+    case "IR arquitectura":
+      return "h-10 w-auto"; // Make IR larger
+    case "Hyphen":
+      return "h-8 w-auto"; // Default/medium size for Hyphen
+    default:
+      return "h-8 w-auto"; // Fallback size
+  }
+};
+
+export const WorkDetail = () => {
+  const { companyName, projectName } = useParams<{ companyName: string; projectName: string }>();
+  const [projectDetails, setProjectDetails] = useState<ProjectDetailData | null>(null);
+  const [images, setImages] = useState<CloudinaryImage[]>([]);
+  const [detailsLoading, setDetailsLoading] = useState(true);
+  const [imagesLoading, setImagesLoading] = useState(false); // Start false, true when fetching images
+  const [detailsError, setDetailsError] = useState<string | null>(null);
+  const [imagesError, setImagesError] = useState<string | null>(null);
+  const [showCarousel, setShowCarousel] = useState(false); // For fade-in effect
+
+  const formattedCompanyName = useMemo(() => 
+    companyName
+      ? companyName.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+      : '',
+  [companyName]);
+
+  // Effect to fetch project details
   useEffect(() => {
-    // Find the matching project from the work data
-    if (companyName && projectName) {
-      // Find project with matching company and title
-      const foundProject = workData.find(item => {
-        // Create slugs for comparison
-        const itemCompanySlug = item.company
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-|-$/g, '');
-          
-        const itemTitleSlug = item.title
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-|-$/g, '');
-          
-        // Compare with URL slugs
-        return itemCompanySlug === companyName.toLowerCase() && 
-               itemTitleSlug === projectName.toLowerCase();
-      });
-      
-      if (foundProject) {
-        setProject(foundProject);
+    const fetchProjectDetails = async () => {
+      if (!companyName || !projectName) {
+        setDetailsLoading(false);
+        setDetailsError("Company or project name not provided in URL.");
+        return;
       }
-      setLoading(false);
-    }
+      try {
+        // Reset states for new data fetch
+        setDetailsLoading(true);
+        setImagesLoading(false); // Ensure imagesLoading is false before details possibly trigger image load
+        setProjectDetails(null);
+        setImages([]);
+        setDetailsError(null);
+        setImagesError(null);
+        setShowCarousel(false);
+
+        const workData = await getWorkData();
+
+        const foundProject = workData.find(item => {
+          const itemCompanySlug = item.company?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
+          const itemIdentifierSlug = item.name || item.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '';
+          return itemCompanySlug === companyName.toLowerCase() && itemIdentifierSlug === projectName.toLowerCase();
+        });
+        
+        if (foundProject) {
+          setProjectDetails(foundProject);
+          // Note: imagesLoading will be set to true by the image fetching useEffect if applicable
+        } else {
+          setDetailsError("Project details not found.");
+          setDetailsLoading(false); // Explicitly stop loading if not found
+        }
+      } catch (e) {
+        console.error("Failed to fetch project details:", e);
+        setDetailsError(e instanceof Error ? e.message : "An unknown error occurred fetching details");
+        setDetailsLoading(false); // Stop loading on error
+      } 
+      // Removed finally block for setDetailsLoading(false) as it's handled in paths above
+      // or will be handled implicitly when projectDetails triggers image load
+    };
+
+    fetchProjectDetails();
   }, [companyName, projectName]);
 
-  // Show loading state
-  if (loading) {
-    return <div className="p-4 pt-8">Loading project details...</div>;
+  // Effect to fetch images once project details (and title) are loaded
+  useEffect(() => {
+    // Only proceed if projectDetails are loaded and have necessary info
+    if (projectDetails && projectDetails.imagesPath && projectDetails.name) {
+      const fetchProjectImages = async () => {
+        try {
+          setImagesLoading(true); // Set loading true for images
+          setImagesError(null);
+          setShowCarousel(false); 
+          
+          const cloudinaryFolderPath = projectDetails.imagesPath + projectDetails.name;
+          console.log("[WorkDetail] Fetching images from path:", cloudinaryFolderPath);
+
+          const imageData = await getItemImageUrls(cloudinaryFolderPath);
+          console.log("[WorkDetail] Received image data:", imageData);
+          setImages(imageData);
+
+          if (imageData.length > 0) {
+            setTimeout(() => setShowCarousel(true), 50);
+          }
+        } catch (e) {
+          console.error("Failed to fetch project images:", e);
+          setImagesError(e instanceof Error ? e.message : "An unknown error occurred fetching images");
+          setImages([]); 
+        } finally {
+          setImagesLoading(false); // Stop image loading in all cases
+          // Details loading should be false by now, set it definitively if projectDetails are present
+          if(projectDetails) setDetailsLoading(false);
+        }
+      };
+
+      fetchProjectImages();
+    } else if (projectDetails) {
+      // If projectDetails are loaded but no imagesPath/name, means no images to fetch.
+      // Consider image loading done for this case.
+      setImagesLoading(false);
+      setDetailsLoading(false); // And details loading done too.
+      setImages([]); // Ensure images are empty
+    }
+  }, [projectDetails]); 
+
+  // Global loading state: show if details are loading OR initial images are loading
+  if (detailsLoading || (projectDetails && imagesLoading)) {
+    return (
+      <div className="p-4 pt-8 flex items-center justify-center min-h-[calc(100vh-10rem)]">
+        Loading content...
+      </div>
+    );
   }
 
-  // Show error if project not found
-  if (!project) {
+  // Error state for project details
+  if (detailsError) {
+    return <div className="p-4 pt-8 text-red-500">Error: {detailsError}</div>;
+  }
+
+  // Project not found state (after all loading is complete)
+  if (!projectDetails) {
     return (
-      <div className="p-4 pt-8 flex flex-col space-y-4">
+      <div className="p-4 pt-8 flex flex-col space-y-4 items-center">
         <h2 className="text-3xl tracking-tight">Project Not Found</h2>
         <p className="text-muted-foreground">
           The project you're looking for doesn't exist or may have been moved.
@@ -81,72 +168,94 @@ export const WorkDetail = () => {
     );
   }
 
+  // --- If we reach here, details are loaded, and initial image check is complete --- 
+  const CompanyIcon = projectDetails.company ? companyIconMap[projectDetails.company] : null;
+  const iconSizeClass = getCompanyIconSizeClass(projectDetails.company);
+  const carouselImageUrls = images.map(img => img.secure_url);
+
   return (
     <div className="p-4 pt-8 flex flex-col space-y-8">
-      {/* Back button */}
       <BackButton text={`Back to ${formattedCompanyName}`} variant="text" />
 
-      {/* Project header */}
       <div className="w-full">
-        <div className="flex justify-between items-start mb-2">
-          <h1 className="text-3xl tracking-tight">{project.title}</h1>
-          <div className="text-muted-foreground">
-            {project.dateFrom} {project.dateUntil ? `- ${project.dateUntil}` : ''}
-          </div>
+        <h1 className="text-3xl tracking-tight mb-2">{projectDetails.title}</h1>
+        
+        <div className="text-muted-foreground mb-4 flex items-center gap-x-3">
+          {CompanyIcon && (
+            projectDetails.company === "Tesla" ? (
+              <span style={{ color: '#CC0000' }}> 
+                <CompanyIcon className={iconSizeClass} />
+              </span>
+            ) : projectDetails.company === "Hyphen" ? (
+              <CompanyIcon className={iconSizeClass} />
+            ) : (
+              <CompanyIcon className={iconSizeClass} />
+            )
+          )}
+          <span>{projectDetails.dateFrom} {projectDetails.dateUntil ? `- ${projectDetails.dateUntil}` : ''}</span>
         </div>
-        <h2 className="text-xl text-muted-foreground mb-4">{project.company}</h2>
-        <p className="text-lg mb-8">{project.summary}</p>
+        <p className="text-lg mb-8">{projectDetails.summary}</p>
       </div>
 
-      {/* Project details */}
+      {/* Image Section: Skeleton (while loading), Error, or Carousel */}
+      {/* Note: The top-level imagesLoading might be false here if it was an initial load. */}
+      {/* We rely on the imagesError or images.length for conditional rendering of content below. */}
+      <div className="mb-8 w-full">
+        {/* Show CarouselSkeleton only if images are actively being fetched AFTER initial page load, */}
+        {/* otherwise the global loader already covered it. This might be redundant if imagesLoading is always false here. */}
+        {/* For now, let's keep it simple: the global loader handles initial, CarouselSkeleton is not strictly needed here */}
+        {/* if the global one covers imagesLoading. However, if images can be RE-FETCHED, it would be needed. */}
+        {/* Let's assume images are only fetched once for now with this component structure. */}
+
+        {/* Display image loading error if it occurred */}
+        {!imagesLoading && imagesError && (
+          <div className="p-4 text-red-500 border border-red-500 rounded-md">
+            Could not load images: {imagesError}
+          </div>
+        )}
+
+        {/* Display carousel if images are loaded successfully and exist */}
+        {!imagesLoading && !imagesError && images.length > 0 && (
+          <div className={`transition-opacity duration-500 ease-in-out ${showCarousel ? 'opacity-100' : 'opacity-0'}`}>
+            <ImageCarousel 
+              images={carouselImageUrls} 
+              altText={projectDetails.title || 'Project image'}
+              imageClassName="rounded-2xl shadow-md object-cover w-full h-auto"
+              containerClassName="w-full"
+            />
+          </div>
+        )}
+        {/* No message is shown if images.length === 0 and no error, as per previous request */}
+      </div>
+
       <div className="w-full">
         <h3 className="text-xl mb-4">Project Details</h3>
-        <ul className="list-disc list-inside text-muted-foreground space-y-3 mb-8 pl-6">
-          {project.details.map((detail, index) => (
+        <ul className="list-disc list-inside text-muted-foreground space-y-3 mb-8">
+          {projectDetails.details?.map((detail, index) => (
             <li className="text-md" key={index}>{detail}</li>
           ))}
         </ul>
       </div>
 
-      {/* Project images (if available) */}
-      {project.images && project.images.length > 0 && (
-        <div className="w-full">
-          <h3 className="text-xl mb-4">Gallery</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {project.images.map((image, index) => (
-              <img 
-                key={index} 
-                src={image} 
-                alt={`${project.title} - image ${index + 1}`} 
-                className="rounded-md w-full h-auto object-cover"
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Tech stack (if available) */}
-      {project.techStack && project.techStack.length > 0 && (
+      {projectDetails.techStack && projectDetails.techStack.length > 0 && (
         <div className="w-full">
           <h3 className="text-xl mb-4">Tech Stack</h3>
-          <ExpandableTags tags={project.techStack} />
+          <ExpandableTags tags={projectDetails.techStack} />
         </div>
       )}
 
-      {/* Features (if available) */}
-      {project.features && project.features.length > 0 && (
+      {projectDetails.features && projectDetails.features.length > 0 && (
         <div className="w-full">
           <h3 className="text-xl mb-4">Features</h3>
-          <ExpandableTags tags={project.features} />
+          <ExpandableTags tags={projectDetails.features} />
         </div>
       )}
 
-      {/* Media mentions (if available) */}
-      {project.media && project.media.length > 0 && (
+      {projectDetails.media && projectDetails.media.length > 0 && (
         <div className="w-full">
           <h3 className="text-xl mb-4">Featured On</h3>
           <div className="flex flex-wrap gap-2 mb-6">
-            {project.media.map((mediaItem, index) => (
+            {projectDetails.media.map((mediaItem, index) => (
               <a
                 key={index}
                 href={mediaItem.url}
@@ -162,11 +271,10 @@ export const WorkDetail = () => {
         </div>
       )}
       
-      {/* External links */}
       <div className="w-full flex flex-wrap gap-4">
-        {project.url && (
+        {projectDetails.url && (
           <a 
-            href={project.url} 
+            href={projectDetails.url} 
             target="_blank" 
             rel="noopener noreferrer"
             className="inline-flex"
@@ -178,9 +286,9 @@ export const WorkDetail = () => {
           </a>
         )}
         
-        {project.github && (
+        {projectDetails.github && (
           <a 
-            href={project.github} 
+            href={projectDetails.github} 
             target="_blank" 
             rel="noopener noreferrer"
             className="inline-flex"
@@ -194,4 +302,4 @@ export const WorkDetail = () => {
       </div>
     </div>
   );
-}; 
+};

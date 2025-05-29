@@ -101,7 +101,7 @@ export function SideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar {...props} side="right" className="border-none">
-      <SidebarContent className="pt-8 mr-10 flex flex-col h-full items-end w-full">
+      <SidebarContent className="pt-16 md:pt-8 mr-10 flex flex-col h-full items-end w-full">
         <SidebarGroup className="w-full items-end">
           <SidebarMenu className="w-full items-end">
             {navMain.map((item, idx) => (
@@ -110,17 +110,21 @@ export function SideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuButton
                     asChild
                     className="w-full justify-end"
-                    onClick={() => handleParentClick(idx)}
                   >
                     <a
                       href={item.url}
                       className="font-medium"
+                      onClick={(e) => {
+                        handleParentClick(idx);
+                        if (item.url && !item.url.startsWith('http')) {
+                          handleNavigate(item.url, e);
+                        }
+                      }}
                     >
                       {item.title}
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                {/* Submenu rendered as a separate block, not inside the flex row */}
                 <SidebarMenu
                   className={`w-full items-end overflow-hidden transition-all duration-300 ${
                     item.isActive ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
@@ -160,6 +164,16 @@ export function SideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         <SidebarGroup className="mt-auto mb-10 w-full items-end">
           <SidebarMenu className="w-full items-end">
+            <SidebarMenuItem className="w-full flex justify-end">
+              <SidebarMenuButton asChild className="w-full justify-end">
+                <a
+                  href="mailto:hello@estebanbasili.com"
+                  className="font-medium"
+                >
+                  Email
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             <SidebarMenuItem className="w-full flex justify-end">
               <SidebarMenuButton asChild className="w-full justify-end">
                 <a 
