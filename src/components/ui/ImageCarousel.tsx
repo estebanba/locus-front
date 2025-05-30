@@ -297,7 +297,11 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
 
       {uniquePhotographers.length > 0 && (
         <p style={{ textAlign: 'left', fontStyle: 'italic', marginTop: '0.5rem', marginBottom: '1rem', color: 'lightgray' }}>
-          Photographs by {uniquePhotographers.join(', ')}
+          Photographs by {
+            uniquePhotographers.length === 1
+              ? uniquePhotographers[0]
+              : uniquePhotographers.slice(0, -1).join(', ') + ' and ' + uniquePhotographers[uniquePhotographers.length - 1]
+          }
         </p>
       )}
     </div>
