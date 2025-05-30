@@ -172,7 +172,6 @@ export const WorkDetail = () => {
   }
 
   // --- If we reach here, details are loaded, and initial image check is complete --- 
-  const carouselImageUrls = images.map(img => img.secure_url);
 
   return (
     <div className="p-4 pt-8 flex flex-col space-y-8">
@@ -208,7 +207,7 @@ export const WorkDetail = () => {
         {!imagesLoading && !imagesError && images.length > 0 && (
           <div className={`transition-opacity duration-500 ease-in-out ${showCarousel ? 'opacity-100' : 'opacity-0'}`}>
             <ImageCarousel 
-              images={carouselImageUrls} 
+              images={images} 
               altText={projectDetails.title || 'Project image'}
               imageClassName="rounded-2xl shadow-md object-cover w-full h-auto"
               containerClassName="w-full"

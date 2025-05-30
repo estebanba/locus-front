@@ -86,6 +86,7 @@ export interface CloudinaryImage {
   height?: number;
   format?: string;
   created_at?: string;
+  metadata?: Record<string, any>;
 }
 
 // --- API Functions ---

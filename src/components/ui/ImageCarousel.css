@@ -6,7 +6,7 @@
   --slide-spacing: 1rem; /* Adjusted for consistent gaps between image frames */
   /* --slide-size: 80%; */ /* REMOVED: Slides are now auto-width */
   /* overflow: hidden; */ /* REMOVE overflow hidden from the main container, let viewport handle it */
-  height: var(--slide-height); /* Adjust .embla height to match viewport content height */
+  /* height: var(--slide-height); */ /* REMOVED: Let height be auto based on content */
 }
 
 .embla__viewport {
@@ -50,8 +50,8 @@
   display: flex;
   flex-direction: column; /* Stack buttons and dots vertically */
   align-items: center; /* Center items horizontally */
-  padding: 1rem; 
-  margin-top: 1rem; 
+  padding: 0.5rem; 
+  margin-top: 0.25rem; 
 }
 
 .embla__buttons {

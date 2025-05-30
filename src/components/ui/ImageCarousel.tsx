@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   EmblaCarouselType,
   EmblaEventType,
@@ -12,8 +12,8 @@ import {
   PrevButton,
   usePrevNextButtons
 } from './EmblaCarouselArrowButtons'
-import { DotButton, useDotButton } from './EmblaCarouselDotButton'
 import './ImageCarousel.css'
+import { CloudinaryImage } from '../../services/api'
 
 const TWEEN_FACTOR_BASE = 0.2;
 
@@ -25,7 +25,7 @@ const cursorLeft = `url("data:image/svg+xml;utf8,${encodeURIComponent(chevronLef
 const cursorRight = `url("data:image/svg+xml;utf8,${encodeURIComponent(chevronRightSVG)}") 16 16, auto`;
 
 interface ImageCarouselProps {
-  images: string[];
+  images: CloudinaryImage[];
   altText: string;
   options?: EmblaOptionsType;
   containerClassName?: string;
@@ -38,12 +38,9 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
   const tweenFactor = useRef(0);
   const tweenNodes = useRef<HTMLElement[]>([]);
 
-  const [expandedImage, setExpandedImage] = useState<string | null>(null);
-  const prevExpandedImageRef = useRef<string | null>(null);
+  const [expandedImage, setExpandedImage] = useState<CloudinaryImage | null>(null);
+  const prevExpandedImageRef = useRef<CloudinaryImage | null>(null);
   const [hoveredImageHalf, setHoveredImageHalf] = useState<'left' | 'right' | null>(null);
-
-  const { selectedIndex, scrollSnaps, onDotButtonClick } =
-    useDotButton(emblaApi);
 
   const {
     prevBtnDisabled,
@@ -123,8 +120,8 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
     prevExpandedImageRef.current = expandedImage;
   }, [expandedImage]);
 
-  const handleThumbnailClick = (imageSrc: string) => {
-    setExpandedImage(imageSrc);
+  const handleThumbnailClick = (image: CloudinaryImage) => {
+    setExpandedImage(image);
   };
 
   const handleCloseExpandedImage = () => {
@@ -134,18 +131,20 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
 
   const goToNextExpandedImage = useCallback(() => {
     if (!expandedImage) return;
-    const currentIndex = images.indexOf(expandedImage);
+    const currentIndex = images.findIndex(img => img.public_id === expandedImage.public_id);
     if (currentIndex === -1) return;
     const nextIndex = (currentIndex + 1) % images.length;
-    setExpandedImage(images[nextIndex]);
+    const nextImage = images[nextIndex];
+    setExpandedImage(nextImage);
   }, [expandedImage, images]);
 
   const goToPrevExpandedImage = useCallback(() => {
     if (!expandedImage) return;
-    const currentIndex = images.indexOf(expandedImage);
+    const currentIndex = images.findIndex(img => img.public_id === expandedImage.public_id);
     if (currentIndex === -1) return;
     const prevIndex = (currentIndex - 1 + images.length) % images.length;
-    setExpandedImage(images[prevIndex]);
+    const prevImage = images[prevIndex];
+    setExpandedImage(prevImage);
   }, [expandedImage, images]);
 
   const handleExpandedImageClick = (event: React.MouseEvent<HTMLImageElement>) => {
@@ -180,7 +179,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
 
   const isOpeningModal = prevExpandedImageRef.current === null && expandedImage !== null;
   const isClosingModal = prevExpandedImageRef.current !== null && expandedImage === null;
-  const isChangingImageInModal = prevExpandedImageRef.current !== null && expandedImage !== null && prevExpandedImageRef.current !== expandedImage;
+  const isChangingImageInModal = prevExpandedImageRef.current !== null && expandedImage !== null && prevExpandedImageRef.current.public_id !== expandedImage.public_id;
 
   const imageAnimationVariants = {
     openScale: { scale: 1, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 30 } },
@@ -199,6 +198,19 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
     currentExit = "fadeOut";
   }
 
+  const uniquePhotographers = useMemo(() => {
+    if (!images || images.length === 0) {
+      return [];
+    }
+    const photographerSet = new Set<string>();
+    images.forEach(image => {
+      if (image.metadata && image.metadata.photographer && typeof image.metadata.photographer === 'string') {
+        photographerSet.add(image.metadata.photographer);
+      }
+    });
+    return Array.from(photographerSet);
+  }, [images]);
+
   const getCursorStyle = () => {
     if (hoveredImageHalf === 'left') return cursorLeft;
     if (hoveredImageHalf === 'right') return cursorRight;
@@ -209,23 +221,29 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
     <div className={`embla ${containerClassName || ''}`.trim()}>
       <div className="embla__viewport" ref={emblaRef}>
         <div className="embla__container">
-          {images.map((src, index) => (
-            <div className="embla__slide" key={index}>
-              <motion.div
-                className="embla__parallax"
-                onClick={() => handleThumbnailClick(src)}
-                layoutId={`image-${index}`}
-              >
-                <div className="embla__parallax__layer">
-                  <img
-                    className={`embla__slide__img embla__parallax__img ${imageClassName || ''}`.trim()}
-                    src={src}
-                    alt={`${altText} - image ${index + 1}`}
-                  />
-                </div>
-              </motion.div>
-            </div>
-          ))}
+          {images.map((image, index) => {
+            if (!image || !image.secure_url) {
+              console.error("Skipping rendering of an image due to missing data:", image);
+              return null;
+            }
+            return (
+              <div className="embla__slide" key={image.public_id || `slide-${index}`}>
+                <motion.div
+                  className="embla__parallax"
+                  onClick={() => handleThumbnailClick(image)}
+                  layoutId={`image-${image.public_id || `layout-${index}`}`}
+                >
+                  <div className="embla__parallax__layer">
+                    <img
+                      className={`embla__slide__img embla__parallax__img ${imageClassName || ''}`.trim()}
+                      src={image.secure_url}
+                      alt={`${altText} - image ${index + 1}`}
+                    />
+                  </div>
+                </motion.div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -240,22 +258,8 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
         className="embla__button--next-side"
       />
 
-      <div className="embla__controls">
-        <div className="embla__dots">
-          {scrollSnaps.map((_, index) => (
-            <DotButton
-              key={index}
-              onClick={() => onDotButtonClick(index)}
-              className={('embla__dot').concat(
-                index === selectedIndex ? ' embla__dot--selected' : ''
-              )}
-            />
-          ))}
-        </div>
-      </div>
-
       <AnimatePresence mode="wait">
-        {expandedImage && (
+        {expandedImage && expandedImage.secure_url && (
           <motion.div
             className="expanded-image-backdrop"
             initial={{ opacity: 0 }}
@@ -264,15 +268,15 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
             onClick={handleCloseExpandedImage}
           >
             <motion.img
-              key={expandedImage} 
-              src={expandedImage}
+              key={expandedImage.public_id || 'expanded-image'}
+              src={expandedImage.secure_url}
               alt={`${altText} - expanded image`}
               className="expanded-image-content"
               variants={imageAnimationVariants}
               initial={currentInitial}
               animate={currentAnimate}
               exit={currentExit}
-              layoutId={(isOpeningModal || isClosingModal) ? `image-${images.indexOf(expandedImage)}` : undefined}
+              layoutId={(isOpeningModal || isClosingModal) ? `image-${expandedImage.public_id || 'expanded-layout'}` : undefined}
               onClick={handleExpandedImageClick}
               onMouseMove={handleExpandedImageMouseMove}
               onMouseLeave={handleExpandedImageMouseLeave}
@@ -290,6 +294,12 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {uniquePhotographers.length > 0 && (
+        <p style={{ textAlign: 'left', fontStyle: 'italic', marginTop: '0.5rem', marginBottom: '1rem', color: 'lightgray' }}>
+          Photographs by {uniquePhotographers.join(', ')}
+        </p>
+      )}
     </div>
   );
 }; 
