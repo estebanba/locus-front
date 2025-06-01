@@ -207,6 +207,7 @@ export const WorkDetail = () => {
         {!imagesLoading && !imagesError && images.length > 0 && (
           <div className={`transition-opacity duration-500 ease-in-out ${showCarousel ? 'opacity-100' : 'opacity-0'}`}>
             <ImageCarousel 
+              key={(projectDetails.imagesPath || '') + (projectDetails.name || '')}
               images={images} 
               altText={projectDetails.title || 'Project image'}
               imageClassName="rounded-2xl shadow-md object-cover w-full h-auto"

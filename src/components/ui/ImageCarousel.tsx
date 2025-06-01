@@ -35,6 +35,9 @@ interface ImageCarouselProps {
 
 export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
   const { images, altText, options, containerClassName, imageClassName } = props;
+  // Debug: Log on every render
+  console.log('[ImageCarousel] render', { images, allImagesLoaded: undefined }); // allImagesLoaded will be defined below
+
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
   const tweenFactor = useRef(0);
   const tweenNodes = useRef<HTMLElement[]>([]);
@@ -54,29 +57,44 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
   const [allImagesLoaded, setAllImagesLoaded] = useState(false);
   // Ref to track how many images have loaded, avoids unnecessary re-renders
   const loadedCountRef = useRef(0);
+  // State to track if the first image is loaded (for smooth transition)
+  const [firstImageLoaded, setFirstImageLoaded] = useState(false);
+  // State to trigger the fade-out animation
+  const [skeletonVisible, setSkeletonVisible] = useState(true);
+
+  // Debug: Log after state is defined
+  console.log('[ImageCarousel] after state', { images, allImagesLoaded });
 
   // Reset loading state when images prop changes
   useEffect(() => {
+    console.log('[ImageCarousel] useEffect reset loading', { images });
     setAllImagesLoaded(false);
     loadedCountRef.current = 0;
   }, [images]);
 
+  // When the first image loads, start the fade-out transition
+  useEffect(() => {
+    if (firstImageLoaded) {
+      // Start fade-out after a short delay for effect
+      const timeout = setTimeout(() => setSkeletonVisible(false), 500); // 500ms fade
+      return () => clearTimeout(timeout);
+    } else {
+      setSkeletonVisible(true); // Reset if images change
+    }
+  }, [firstImageLoaded, images]);
+
   // Handler for each image's onLoad event
-  const handleImageLoad = () => {
+  const handleImageLoad = (index?: number) => {
     loadedCountRef.current += 1;
     // When all images are loaded, set allImagesLoaded to true
     if (loadedCountRef.current >= images.length) {
       setAllImagesLoaded(true);
     }
+    // When the first image is loaded, trigger the transition
+    if (index === 0) {
+      setFirstImageLoaded(true);
+    }
   };
-
-  // Place the skeleton conditional rendering here, after all hooks and before the return statement
-  // This ensures hooks are never called conditionally
-  let maybeSkeleton = null;
-  if (!allImagesLoaded && images.length > 0) {
-    // The skeleton uses the same rounded corners and responsive height as the carousel viewport
-    maybeSkeleton = <CarouselSkeleton className="w-full h-[32vh] md:h-[48vh] rounded-2xl" />;
-  }
 
   const setTweenNodes = useCallback((emblaApi: EmblaCarouselType): void => {
     tweenNodes.current = emblaApi.slideNodes().map((slideNode) => {
@@ -246,11 +264,32 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
     return 'pointer';
   };
 
-  if (maybeSkeleton) return maybeSkeleton;
-
   return (
-    <div className={`embla ${containerClassName || ''}`.trim()}>
-      <div className="embla__viewport" ref={emblaRef}>
+    <div className={`embla ${containerClassName || ''}`.trim()} style={{ position: 'relative' }}>
+      <div className="embla__viewport" ref={emblaRef} style={{ position: 'relative' }}>
+        {/* Overlay the skeleton with a smooth fade-out effect only */}
+        {skeletonVisible && images.length > 0 && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              zIndex: 10,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              pointerEvents: 'none',
+              borderRadius: '1.5rem',
+              transition: 'opacity 0.5s cubic-bezier(0.4,0,0.2,1)',
+              opacity: firstImageLoaded ? 0 : 1,
+              background: 'linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)',
+            }}
+          >
+            <CarouselSkeleton className="w-full h-[32vh] md:h-[48vh] rounded-2xl" />
+          </div>
+        )}
         <div className="embla__container">
           {images.map((image, index) => {
             if (!image || !image.secure_url) {
@@ -274,7 +313,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
                       // Attach onLoad to track when each image finishes loading
                       onLoad={() => {
                         console.log('Image loaded', { index, src: image.secure_url, public_id: image.public_id });
-                        handleImageLoad();
+                        handleImageLoad(index);
                       }}
                     />
                   </div>
