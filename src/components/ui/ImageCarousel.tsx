@@ -14,6 +14,7 @@ import {
 } from './EmblaCarouselArrowButtons'
 import './ImageCarousel.css'
 import { CloudinaryImage } from '../../services/api'
+import CarouselSkeleton from './CarouselSkeleton'
 
 const TWEEN_FACTOR_BASE = 0.2;
 
@@ -48,6 +49,34 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
     onPrevButtonClick,
     onNextButtonClick
   } = usePrevNextButtons(emblaApi);
+
+  // State to track if all images are loaded
+  const [allImagesLoaded, setAllImagesLoaded] = useState(false);
+  // Ref to track how many images have loaded, avoids unnecessary re-renders
+  const loadedCountRef = useRef(0);
+
+  // Reset loading state when images prop changes
+  useEffect(() => {
+    setAllImagesLoaded(false);
+    loadedCountRef.current = 0;
+  }, [images]);
+
+  // Handler for each image's onLoad event
+  const handleImageLoad = () => {
+    loadedCountRef.current += 1;
+    // When all images are loaded, set allImagesLoaded to true
+    if (loadedCountRef.current >= images.length) {
+      setAllImagesLoaded(true);
+    }
+  };
+
+  // Place the skeleton conditional rendering here, after all hooks and before the return statement
+  // This ensures hooks are never called conditionally
+  let maybeSkeleton = null;
+  if (!allImagesLoaded && images.length > 0) {
+    // The skeleton uses the same rounded corners and responsive height as the carousel viewport
+    maybeSkeleton = <CarouselSkeleton className="w-full h-[32vh] md:h-[48vh] rounded-2xl" />;
+  }
 
   const setTweenNodes = useCallback((emblaApi: EmblaCarouselType): void => {
     tweenNodes.current = emblaApi.slideNodes().map((slideNode) => {
@@ -217,6 +246,8 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
     return 'pointer';
   };
 
+  if (maybeSkeleton) return maybeSkeleton;
+
   return (
     <div className={`embla ${containerClassName || ''}`.trim()}>
       <div className="embla__viewport" ref={emblaRef}>
@@ -226,6 +257,8 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
               console.error("Skipping rendering of an image due to missing data:", image);
               return null;
             }
+            // Debug: Log each image being rendered
+            console.log("Rendering image", { index, src: image.secure_url, public_id: image.public_id });
             return (
               <div className="embla__slide" key={image.public_id || `slide-${index}`}>
                 <motion.div
@@ -238,6 +271,11 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
                       className={`embla__slide__img embla__parallax__img ${imageClassName || ''}`.trim()}
                       src={image.secure_url}
                       alt={`${altText} - image ${index + 1}`}
+                      // Attach onLoad to track when each image finishes loading
+                      onLoad={() => {
+                        console.log('Image loaded', { index, src: image.secure_url, public_id: image.public_id });
+                        handleImageLoad();
+                      }}
                     />
                   </div>
                 </motion.div>
