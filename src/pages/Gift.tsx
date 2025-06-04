@@ -39,7 +39,7 @@ export default function Gift() {
   return (
     <div className={`min-h-screen flex flex-col ${bohoBg}`}>
       {/* Header (fixed height, no shrink) */}
-      <header className="flex flex-col items-center py-6 flex-shrink-0">
+      <header className="flex flex-col items-center py-2 flex-shrink-0">
         <div className="flex items-center justify-center">
           <h1 className="text-3xl font-bold mb-2 tracking-tight text-[#2d2a32]" style={{ fontFamily: 'Cormorant Garamond, serif' }}>Feliz Cumple Mami!</h1>
           <span className="text-5xl ml-2" aria-label="Birthday cake" role="img">{cakeIcon}</span>
@@ -100,7 +100,10 @@ export default function Gift() {
       </main>
 
       {/* Footer dedication - larger text, no shrink */}
-      <footer className="text-center text-lg text-[#2d2a32] py-6 mt-8 font-semibold flex-shrink-0" style={{ fontFamily: 'Quicksand, sans-serif' }}>
+      <footer
+        className="text-center text-lg text-[#2d2a32] font-semibold flex-shrink-0 flex items-start justify-center min-h-[80px] sm:min-h-[100px] pt-2 pb-4 w-full"
+        style={{ fontFamily: 'Quicksand, sans-serif' }}
+      >
         Con Amor de Nikita y Esteban 💜
       </footer>
     </div>
