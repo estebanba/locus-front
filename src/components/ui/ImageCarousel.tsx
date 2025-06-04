@@ -36,7 +36,7 @@ interface ImageCarouselProps {
 export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
   const { images, altText, options, containerClassName, imageClassName } = props;
   // Debug: Log on every render
-  console.log('[ImageCarousel] render', { images, allImagesLoaded: undefined }); // allImagesLoaded will be defined below
+  // console.log('[ImageCarousel] render', { images, allImagesLoaded: undefined }); // allImagesLoaded will be defined below
 
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
   const tweenFactor = useRef(0);
@@ -54,7 +54,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
   } = usePrevNextButtons(emblaApi);
 
   // State to track if all images are loaded
-  const [allImagesLoaded, setAllImagesLoaded] = useState(false);
+  // const [allImagesLoaded, setAllImagesLoaded] = useState(false);
   // Ref to track how many images have loaded, avoids unnecessary re-renders
   const loadedCountRef = useRef(0);
   // State to track if the first image is loaded (for smooth transition)
@@ -63,12 +63,12 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
   const [skeletonVisible, setSkeletonVisible] = useState(true);
 
   // Debug: Log after state is defined
-  console.log('[ImageCarousel] after state', { images, allImagesLoaded });
+  // console.log('[ImageCarousel] after state', { images, allImagesLoaded });
 
   // Reset loading state when images prop changes
   useEffect(() => {
     console.log('[ImageCarousel] useEffect reset loading', { images });
-    setAllImagesLoaded(false);
+    // setAllImagesLoaded(false);
     loadedCountRef.current = 0;
   }, [images]);
 
@@ -88,7 +88,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
     loadedCountRef.current += 1;
     // When all images are loaded, set allImagesLoaded to true
     if (loadedCountRef.current >= images.length) {
-      setAllImagesLoaded(true);
+      // setAllImagesLoaded(true);
     }
     // When the first image is loaded, trigger the transition
     if (index === 0) {
@@ -264,6 +264,17 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
     return 'pointer';
   };
 
+  // Memoize the sorted images to avoid sorting on every render
+  const sortedImages = useMemo(() => {
+    // We create a new array to avoid mutating the original images prop
+    return [...images].sort((a, b) => {
+      // Extract the number from the public_id for sorting
+      const aNumber = parseInt(a.public_id.split("_")[1]);
+      const bNumber = parseInt(b.public_id.split("_")[1]);
+      return aNumber - bNumber;
+    });
+  }, [images]);
+
   return (
     <div className={`embla ${containerClassName || ''}`.trim()} style={{ position: 'relative' }}>
       <div className="embla__viewport" ref={emblaRef} style={{ position: 'relative' }}>
@@ -291,13 +302,15 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
           </div>
         )}
         <div className="embla__container">
-          {images.map((image, index) => {
+          {/* Use the memoized sortedImages instead of sorting in render */}
+          {sortedImages.map((image, index) => {
             if (!image || !image.secure_url) {
-              console.error("Skipping rendering of an image due to missing data:", image);
+              // Optionally keep this log for debugging
+              // console.error("Skipping rendering of an image due to missing data:", image);
               return null;
             }
-            // Debug: Log each image being rendered
-            console.log("Rendering image", { index, src: image.secure_url, public_id: image.public_id });
+            // Commented out to reduce console spam during rerenders
+            // console.log("Rendering image", { index, src: image.secure_url, public_id: image.public_id });
             return (
               <div className="embla__slide" key={image.public_id || `slide-${index}`}>
                 <motion.div
@@ -312,7 +325,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
                       alt={`${altText} - image ${index + 1}`}
                       // Attach onLoad to track when each image finishes loading
                       onLoad={() => {
-                        console.log('Image loaded', { index, src: image.secure_url, public_id: image.public_id });
+                        // console.log('Image loaded', { index, src: image.secure_url, public_id: image.public_id });
                         handleImageLoad(index);
                       }}
                     />

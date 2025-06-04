@@ -16,13 +16,17 @@ import { Photography } from './pages/Photography';
 import { WorkDetail } from './pages/WorkDetail';
 import { ProjectDetail } from './pages/ProjectDetail';
 import { WorkCompanyDetail } from './pages/WorkCompanyDetail';
+import Gift from './pages/Gift';
 
 const router = createBrowserRouter([
   // {
   //   path: "/",
   //   Component: About,
   // },
-  
+  {
+    path: "gift",
+    element: <Gift />,
+  },
   {
     Component: Layout,
     children: [
@@ -59,6 +63,7 @@ const router = createBrowserRouter([
           path: "search",
           element: <SearchTable />,
         },
+       
     ],
   },
 ]);
