@@ -25,32 +25,49 @@ export const WordCloud: React.FC<WordCloudProps> = ({ words }) => {
   // Sort by weighted value but then shuffle to create mixed layout
   const sortedWords = [...weightedWords].sort((a, b) => b.weightedValue - a.weightedValue);
   
-  // Create a mixed layout by interleaving high and low value words
-  const mixedWords = [];
-  const highValue = sortedWords.slice(0, Math.ceil(sortedWords.length / 3));
-  const mediumValue = sortedWords.slice(Math.ceil(sortedWords.length / 3), Math.ceil(sortedWords.length * 2 / 3));
-  const lowValue = sortedWords.slice(Math.ceil(sortedWords.length * 2 / 3));
+  // Create a better mixed layout by shuffling and redistributing
+  const mixedWords: Array<{ text: string; value: number; recency?: number; weightedValue: number }> = [];
   
-  // Interleave the arrays for a more natural distribution
-  const maxLength = Math.max(highValue.length, mediumValue.length, lowValue.length);
-  for (let i = 0; i < maxLength; i++) {
-    if (highValue[i]) mixedWords.push(highValue[i]);
-    if (mediumValue[i]) mixedWords.push(mediumValue[i]);
-    if (lowValue[i]) mixedWords.push(lowValue[i]);
+  // Divide into more granular groups for better mixing
+  const groupSize = Math.ceil(sortedWords.length / 6); // Create 6 groups instead of 3
+  const groups = [];
+  
+  for (let i = 0; i < 6; i++) {
+    const start = i * groupSize;
+    const end = Math.min(start + groupSize, sortedWords.length);
+    groups.push(sortedWords.slice(start, end));
   }
   
-  // Calculate font sizes based on weighted values
+  // Shuffle each group internally for more randomness
+  groups.forEach(group => {
+    for (let i = group.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [group[i], group[j]] = [group[j], group[i]];
+    }
+  });
+  
+  // Interleave all groups for maximum mixing
+  const maxGroupLength = Math.max(...groups.map(g => g.length));
+  for (let i = 0; i < maxGroupLength; i++) {
+    groups.forEach(group => {
+      if (group[i]) mixedWords.push(group[i]);
+    });
+  }
+  
+  // Calculate font sizes with reduced range for better mobile experience
   const maxValue = Math.max(...weightedWords.map(w => w.weightedValue));
   const minValue = Math.min(...weightedWords.map(w => w.weightedValue));
   
   const getFontSize = (weightedValue: number) => {
     const ratio = (weightedValue - minValue) / (maxValue - minValue);
-    return Math.max(14, Math.min(52, 14 + ratio * 38)); // Font size between 14px and 52px
+    // Reduced font size range: 12px to 28px (was 14px to 52px)
+    return Math.max(12, Math.min(28, 12 + ratio * 16));
   };
 
   const getOpacity = (weightedValue: number) => {
     const ratio = (weightedValue - minValue) / (maxValue - minValue);
-    return Math.max(0.5, 0.5 + ratio * 0.5); // Opacity between 0.5 and 1.0
+    // Reduced opacity range for less dramatic difference
+    return Math.max(0.6, 0.6 + ratio * 0.4); // Opacity between 0.6 and 1.0
   };
 
   // Add some randomness to positioning for less tidy appearance
@@ -67,7 +84,7 @@ export const WordCloud: React.FC<WordCloudProps> = ({ words }) => {
           style={{
             fontSize: `${getFontSize(word.weightedValue)}px`,
             opacity: getOpacity(word.weightedValue),
-            fontWeight: word.weightedValue > maxValue * 0.7 ? 600 : word.weightedValue > maxValue * 0.4 ? 500 : 400,
+            fontWeight: word.weightedValue > maxValue * 0.8 ? 500 : word.weightedValue > maxValue * 0.5 ? 450 : 400,
             transform: `translate(${getRandomOffset()}px, ${getRandomOffset()}px)`,
             margin: `${Math.random() * 3}px ${Math.random() * 2}px`, // Random margins for organic feel
           }}

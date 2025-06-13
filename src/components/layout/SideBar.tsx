@@ -219,7 +219,7 @@ export function SideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {/* Always render submenu container for smooth animations */}
                 {item.items && (
                   <div 
-                    className={`w-full pl-4 items-end overflow-hidden transition-all duration-500 ease-out ${
+                    className={`w-full pl-4 items-end overflow-hidden transition-[max-height,opacity] duration-500 ease-out ${
                       // Always visible on mobile (max-h-none), hover-controlled on desktop
                       'max-h-none opacity-100 md:max-h-0 md:opacity-0'
                     } ${
@@ -234,7 +234,7 @@ export function SideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {item.items.map((subItem, subIdx) => (
                       <SidebarMenuItem 
                         key={subItem.title} 
-                        className={`w-full flex justify-end transition-all duration-300 ease-out ${
+                        className={`w-full flex justify-end transition-opacity duration-300 ease-out ${
                           // Always visible on mobile, staggered animation on desktop
                           'opacity-100 md:opacity-0'
                         } ${

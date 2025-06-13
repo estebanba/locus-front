@@ -137,11 +137,11 @@ export const Timeline = () => {
         </div>
 
         {/* Footer note */}
-        <div className="pt-16 border-t border-border mt-16">
+        {/* <div className="pt-16 border-t border-border mt-16">
           <p className="text-sm text-muted-foreground">
             This timeline represents key milestones in my journey bridging design, technology, and data.
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
