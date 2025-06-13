@@ -1,4 +1,5 @@
 import { TeslaIcon } from "@/components/icons/TeslaIcon"; // Import the new icon
+import { BackButton } from "@/components/ui/BackButton";
 
 /* Import accordion and card components in a comment to preserve them for when they're needed again
 import {
@@ -92,7 +93,11 @@ export const Work = () => {
   });
   
   return (
-    <div className="p-4 pt-8 flex flex-col items-end space-y-8">
+    <div className="p-4 pt-8 flex flex-col space-y-8">
+      <div className="w-full flex justify-start">
+        <BackButton variant="text" />
+      </div>
+      
       <div className="w-full">
         <h2 className="text-3xl tracking-tight mb-4">Work</h2>
         <p className="text-muted-foreground mb-8">

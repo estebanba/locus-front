@@ -8,7 +8,9 @@ import './index.css'
 import { Layout } from './components/layout/Layout'
 import { About } from './pages/About'
 import { Work } from './pages/Work';
-// import { Home } from './pages/Home';
+import { Home } from './pages/Home';
+import { Timeline } from './pages/Timeline';
+import { Skillset } from './pages/Skillset';
 // import { Start } from './pages/Start';
 import { SearchTable } from './pages/SearchTable';
 import { Projects } from './pages/Projects';
@@ -17,6 +19,7 @@ import { WorkDetail } from './pages/WorkDetail';
 import { ProjectDetail } from './pages/ProjectDetail';
 import { WorkCompanyDetail } from './pages/WorkCompanyDetail';
 import Gift from './pages/Gift';
+import { ThemeProvider } from './components/theme-provider';
 
 const router = createBrowserRouter([
   // {
@@ -30,7 +33,11 @@ const router = createBrowserRouter([
   {
     Component: Layout,
     children: [
-        { path: "/", Component: About },
+        { path: "/", Component: Home },
+        {
+          path: "home",
+          element: <Home />,
+        },
         {
           path: "about",
           element: <About />,
@@ -60,6 +67,14 @@ const router = createBrowserRouter([
           element: <Photography />,
         },
         {
+          path: "timeline",
+          element: <Timeline />,
+        },
+        {
+          path: "skillset",
+          element: <Skillset />,
+        },
+        {
           path: "search",
           element: <SearchTable />,
         },
@@ -70,6 +85,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-   <RouterProvider router={router} />
+    <ThemeProvider defaultTheme="system" storageKey="locus-ui-theme">
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </StrictMode>,
 )

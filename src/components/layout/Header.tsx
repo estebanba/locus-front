@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggleIcon } from "@/components/theme-toggle";
 
 /**
  * Header component displays the top navigation bar for mobile screens.
@@ -44,6 +45,9 @@ export function Header() {
             <Search className="h-4 w-4" />
             <span className="sr-only">Search</span>
           </Button>
+
+          {/* Theme toggle button */}
+          <ThemeToggleIcon />
 
           {/* Sidebar toggle button using Menu/X icon */}
           <Button
