@@ -23,10 +23,6 @@ interface FeaturedSectionProps {
  * @param items - Array of featured items to display
  */
 export const FeaturedSection = ({ items }: FeaturedSectionProps) => {
-  const capitalizeType = (type: string) => {
-    return type.charAt(0).toUpperCase() + type.slice(1);
-  };
-
   return (
     <section className="w-full space-y-2">
       {/* Section header */}
