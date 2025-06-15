@@ -137,7 +137,7 @@ body::before {
 
   --chart-5: oklch(0.65 0.12 30);
 
-  --sidebar: oklch(0.15 0.04 264);
+  --sidebar: oklch(0.11 0.04 264);
 
   --sidebar-foreground: oklch(0.95 0.01 264);
 
