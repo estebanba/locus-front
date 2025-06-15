@@ -19,7 +19,6 @@ import { WorkDetail } from './pages/WorkDetail';
 import { ProjectDetail } from './pages/ProjectDetail';
 import { EducationDetail } from './pages/EducationDetail';
 import { WorkCompanyDetail } from './pages/WorkCompanyDetail';
-import Gift from './pages/Gift';
 import { ThemeProvider } from './components/theme-provider';
 
 const router = createBrowserRouter([
