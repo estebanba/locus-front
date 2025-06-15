@@ -64,6 +64,26 @@ export interface ProjectItem {
   [key: string]: unknown; // It's generally better to avoid this if possible, or make it more specific
 }
 
+export interface EducationItem {
+  name: string; // Added for slug/ID
+  imagesPath: string; // Added for Cloudinary base path
+  title: string;
+  summary: string;
+  details?: string[];
+  techStack?: string[];
+  features?: string[];
+  type?: string;
+  labels?: string[];
+  company?: string;
+  dateFrom?: string;
+  dateUntil?: string;
+  url?: string;
+  images?: string[];
+  media?: { name: string; url: string; }[];
+  github?: string;
+  [key: string]: unknown;
+}
+
 export interface PhotoData {
   photos: Photo[];
 }
@@ -86,7 +106,7 @@ export interface CloudinaryImage {
   height?: number;
   format?: string;
   created_at?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // --- API Functions ---
@@ -99,6 +119,10 @@ export async function getProjectsData(): Promise<ProjectItem[]> {
   // Assuming projects.json is served from /data/projects by your backend
   // If it's still locus-back/src/data/projects.json, adjust backend route accordingly
   return fetchAPI<ProjectItem[]>('/data/projects.json'); 
+}
+
+export async function getEducationData(): Promise<EducationItem[]> {
+  return fetchAPI<EducationItem[]>('/data/education.json');
 }
 
 export async function getPhotosData(): Promise<PhotoData> {

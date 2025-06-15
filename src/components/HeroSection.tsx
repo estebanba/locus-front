@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { NavigationLinks } from './ui/NavigationLinks';
 
 interface HeroSectionProps {
   summary: string;
@@ -12,20 +12,27 @@ interface HeroSectionProps {
  * Uses clean typography and minimal design with balanced proportions
  */
 export const HeroSection: React.FC<HeroSectionProps> = ({ summary }) => {
+  // Navigation links for the hero section
+  const heroLinks = [
+    { text: "more about me", url: "/about" },
+    { text: "work", url: "/work" },
+    { text: "projects", url: "/projects" }
+  ];
+
   return (
     <section className="mb-16">
       {/* Logo container - aligned with sidebar top (Home link) */}
-      <div className="mb-6">
+      <div className="mb-6 -ml-[12px]">
         <Link 
           to="/" 
-          className="inline-flex items-center justify-center w-12 h-12 hover:opacity-80 transition-opacity duration-200"
+          className="inline-flex items-start justify-start w-18 h-18 hover:opacity-80 transition-opacity duration-200"
           aria-label="Home"
         >
           {/* Actual logo from headLogo.svg */}
           <img 
             src="/headLogo.svg" 
             alt="Esteban Basili Logo" 
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain inline-flex items-start justify-start"
           />
         </Link>
       </div>
@@ -43,30 +50,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ summary }) => {
         </p> */}
       </div>
 
-      {/* Navigation Links - responsive with tighter spacing */}
-      <div className="flex flex-col sm:flex-row gap-3 mt-8 text-base text-muted-foreground">
-        <Link
-          to="/about"
-          className="inline-flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors w-fit"
-        >
-          Know more about me
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-        <Link
-          to="/work"
-          className="inline-flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors w-fit"
-        >
-          See my work
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-        <Link
-          to="/projects"
-          className="inline-flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors w-fit"
-        >
-          Take a look at my projects
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
+      {/* Navigation Links - using reusable component */}
+      <NavigationLinks links={heroLinks} className="mt-8" />
     </section>
   );
 }; 

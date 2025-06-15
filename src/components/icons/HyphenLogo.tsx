@@ -1,6 +1,10 @@
 import React from 'react';
 
-export const HyphenLogo: React.FC<React.SVGProps<SVGSVGElement>> = ({ ...props }) => {
+/**
+ * HyphenLogo component - Company logo with dark mode support
+ * Black in light mode, white in dark mode
+ */
+export const HyphenLogo: React.FC<React.SVGProps<SVGSVGElement>> = ({ className = "", ...props }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -11,6 +15,7 @@ export const HyphenLogo: React.FC<React.SVGProps<SVGSVGElement>> = ({ ...props }
       y="0px"
       viewBox="0 0 582.9 158.9"
       xmlSpace="preserve"
+      className={`text-black dark:text-white ${className}`}
       {...props}
     >
       <polygon fill="currentColor" points="109.9,14.4 123.6,2.1 74.3,2.1 88.2,14.4 88.2,14.4 88.2,110.4 88.2,110.4 88.2,110.4 74.3,122.8   123.8,122.8 109.9,110.4 "/>

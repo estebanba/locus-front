@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { motion, Variants } from "framer-motion";
 import { Search } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { BackButton } from "@/components/ui/BackButton";
 import { getWorkData, getProjectsData } from '@/services/api';
 import type { WorkItem, ProjectItem as ProjectItemType } from '@/services/api';
+import { Footer } from "@/components/Footer";
 
 // Unified interface for search results
 interface SearchItem {
@@ -25,13 +26,27 @@ interface SearchItem {
   [key: string]: unknown;
 }
 
+/**
+ * SearchTable component - Unified search interface for work and projects
+ * Supports URL search parameters via ?q=searchterm for direct navigation from WordCloud
+ * Automatically populates search field when navigating with query parameters
+ */
 export const SearchTable: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [allData, setAllData] = useState<SearchItem[]>([]);
   const [filteredData, setFilteredData] = useState<SearchItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Initialize search term from URL parameters
+  useEffect(() => {
+    const queryParam = searchParams.get('q');
+    if (queryParam) {
+      setSearchTerm(queryParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,7 +107,15 @@ export const SearchTable: React.FC = () => {
   }, [searchTerm, allData]);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setSearchTerm(event.target.value);
+    const newSearchTerm = event.target.value;
+    setSearchTerm(newSearchTerm);
+    
+    // Update URL parameters to reflect current search
+    if (newSearchTerm) {
+      setSearchParams({ q: newSearchTerm });
+    } else {
+      setSearchParams({});
+    }
   };
 
   const handleRowClick = (item: SearchItem): void => {
@@ -117,62 +140,66 @@ export const SearchTable: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-full pt-8 px-4">
-      <div className="mb-4">
-        <BackButton text="Back" variant="text" />
-      </div>
-      <div className="shrink-0 space-y-4">
-        <div className="w-full relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            className="w-full px-4 py-2 pl-10 text-foreground bg-background border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-ring font-light"
-            type="text"
-            placeholder="Search work, projects, skills..."
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+    <div className="flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col h-full pt-8 px-4">
+        <div className="mb-4">
+          <BackButton text="Back" variant="text" />
+        </div>
+        <div className="shrink-0 space-y-4">
+          <div className="w-full relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              className="w-full px-4 py-2 pl-10 text-foreground bg-background border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-ring font-light"
+              type="text"
+              placeholder="Search work, projects, skills..."
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+          </div>
+        </div>
+        <div className="grow overflow-y-auto mt-8">
+          {filteredData.length === 0 && !loading && searchTerm && (
+            <div className="text-center text-muted-foreground py-10">No results found for "{searchTerm}".</div>
+          )}
+          <motion.table variants={containerVariants} initial="hidden" animate="visible" className="w-full">
+            <tbody>
+              {filteredData
+                .sort((a, b) => {
+                  const dateA = a.dateFrom || '';
+                  const dateB = b.dateFrom || '';
+                  if (dateB && !dateA) return -1;
+                  if (!dateB && dateA) return 1;
+                  if (dateB && dateA) {
+                    const comparison = dateB.localeCompare(dateA);
+                    if (comparison !== 0) return comparison;
+                  }
+                  return a.title.localeCompare(b.title);
+                })
+                .map((item, index) => (
+                  <motion.tr
+                    key={`${item.title}-${item.company || 'project'}-${index}`}
+                    variants={rowVariants}
+                    className="border-b border-border hover:bg-muted/50 cursor-pointer transition-colors"
+                    onClick={() => handleRowClick(item)}
+                  >
+                    <td className="py-3 pr-2">
+                      <div className="flex flex-col">
+                        <span className="text-foreground font-medium truncate" title={item.title}>{item.title}</span>
+                        {item.company && <span className="text-xs text-muted-foreground truncate" title={item.company}>{item.company}</span>}
+                        {!item.company && item.type && <span className="text-xs text-muted-foreground truncate" title={item.type}>{item.type}</span>}
+                      </div>
+                    </td>
+                    <td className="py-3 pl-2 text-right text-sm text-muted-foreground whitespace-nowrap">
+                      {item.dateFrom}
+                    </td>
+                  </motion.tr>
+                ))}
+            </tbody>
+          </motion.table>
         </div>
       </div>
-      <div className="grow overflow-y-auto mt-8">
-        {filteredData.length === 0 && !loading && searchTerm && (
-          <div className="text-center text-muted-foreground py-10">No results found for "{searchTerm}".</div>
-        )}
-        <motion.table variants={containerVariants} initial="hidden" animate="visible" className="w-full">
-          <tbody>
-            {filteredData
-              .sort((a, b) => {
-                const dateA = a.dateFrom || '';
-                const dateB = b.dateFrom || '';
-                if (dateB && !dateA) return -1;
-                if (!dateB && dateA) return 1;
-                if (dateB && dateA) {
-                  const comparison = dateB.localeCompare(dateA);
-                  if (comparison !== 0) return comparison;
-                }
-                return a.title.localeCompare(b.title);
-              })
-              .map((item, index) => (
-                <motion.tr
-                  key={`${item.title}-${item.company || 'project'}-${index}`}
-                  variants={rowVariants}
-                  className="border-b border-border hover:bg-muted/50 cursor-pointer transition-colors"
-                  onClick={() => handleRowClick(item)}
-                >
-                  <td className="py-3 pr-2">
-                    <div className="flex flex-col">
-                      <span className="text-foreground font-medium truncate" title={item.title}>{item.title}</span>
-                      {item.company && <span className="text-xs text-muted-foreground truncate" title={item.company}>{item.company}</span>}
-                      {!item.company && item.type && <span className="text-xs text-muted-foreground truncate" title={item.type}>{item.type}</span>}
-                    </div>
-                  </td>
-                  <td className="py-3 pl-2 text-right text-sm text-muted-foreground whitespace-nowrap">
-                    {item.dateFrom}
-                  </td>
-                </motion.tr>
-              ))}
-          </tbody>
-        </motion.table>
-      </div>
+      
+      <Footer />
     </div>
   );
 };

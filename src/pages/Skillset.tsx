@@ -1,4 +1,5 @@
 import { BackButton } from "@/components/ui/BackButton";
+import { Footer } from "@/components/Footer";
 import { WordCloud } from "@/components/WordCloud";
 import { useState, useEffect } from "react";
 import { getWorkData, getProjectsData, type WorkItem, type ProjectItem } from "@/services/api";
@@ -117,24 +118,59 @@ export const Skillset = () => {
   }, []);
 
   return (
-    <div className="p-4 pt-8 flex flex-col space-y-8">
-      <div className="w-full flex justify-start">
-        <BackButton variant="text" />
+    <div className="p-4 pt-8 flex flex-col min-h-screen">
+      <div className="flex-1 space-y-8">
+        <div className="w-full flex justify-start">
+          <BackButton variant="text" />
+        </div>
+        
+        <div className="w-full">
+          <h1 className="text-3xl font-light mb-4">Skillset</h1>
+          
+          {/* Explanatory summary section */}
+          <div className="mb-8 space-y-4 text-muted-foreground">
+            <p className="text-base leading-relaxed">
+              My technical expertise spans across <span className="text-foreground">full-stack development</span>, <span className="text-foreground">data analytics</span>, and <span className="text-foreground">architectural design</span>. 
+              From frontend frameworks like React and TypeScript to backend technologies including Python and databases, 
+              I've worked with diverse tools across web development, machine learning, and design automation.
+            </p>
+            
+           
+          </div>
+          
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="text-muted-foreground">Loading skills...</div>
+            </div>
+          ) : error ? (
+            <div className="text-red-500 text-center">{error}</div>
+          ) : (
+            <WordCloud words={skills} />
+          )}
+
+<div className="mb-8 space-y-4 text-muted-foreground">
+            
+            
+            <p className="text-base leading-relaxed">
+              The wordcloud visualizes my technical skills based on real project data. 
+              Each word represents a technology, framework, or tool I've used professionally.{' '}
+              <span className="text-foreground">Larger words</span> indicate technologies I've used more frequently, 
+              while <span className="text-foreground">brighter words</span> represent more recent experience.
+            </p>
+            
+            <p className="text-base leading-relaxed">
+              This interactive visualization is built with <span className="text-foreground">React</span> and <span className="text-foreground">TypeScript</span>, 
+              using custom algorithms to weight skills by frequency and recency. 
+              The data is dynamically pulled from my work and project history via API calls.
+              <span className="text-foreground"> Click any word</span> to search for related projects and see how I've applied that technology in practice.
+            </p>
+          </div>
+
+
+        </div>
       </div>
       
-      <div className="w-full">
-        <h1 className="text-3xl font-light mb-4">Skillset</h1>
-        
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="text-muted-foreground">Loading skills...</div>
-          </div>
-        ) : error ? (
-          <div className="text-red-500 text-center">{error}</div>
-        ) : (
-          <WordCloud words={skills} />
-        )}
-      </div>
+      <Footer />
     </div>
   );
 }; 

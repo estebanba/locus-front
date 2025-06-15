@@ -1,5 +1,6 @@
 import { TeslaIcon } from "@/components/icons/TeslaIcon"; // Import the new icon
 import { BackButton } from "@/components/ui/BackButton";
+import { Footer } from "@/components/Footer";
 
 /* Import accordion and card components in a comment to preserve them for when they're needed again
 import {
@@ -19,7 +20,7 @@ import { Plus, Globe, ArrowUp, ArrowDown } from "lucide-react"; // Using Lucide 
 */
 
 // Keep necessary imports
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
 import { useState } from 'react';
 // import { IrArquitecturaIcon } from "@/components/icons/IrArquitecturaIcon"; // Removed unused import
 import { HyphenLogo } from "@/components/icons/HyphenLogo";
@@ -51,7 +52,7 @@ const workSections = [
     companyName: "Tesla",
     companyUrl: "https://www.tesla.com/",
     companyIcon: <TeslaIcon className="h-3 w-auto" />,
-    text: "I joined Tesla to help advance and automate the design and construction workflows of their factory near Berlin. Over time, my role expanded into the automobile sector, where I contributed to projects related to manufacturing and quality control. During my time here, I focused on developing internal tools and applications that supported Tesla's engineering and manufacturing teams. Below is a summary of key projects and contributions from my time at Tesla.",
+    text: "I joined Tesla to help advance and automate the design and construction workflows of their factory near Berlin. Over time, my role expanded into the automobile sector, where I contributed to projects related to manufacturing and quality control. During my time here, I focused on developing internal tools and applications that supported Tesla's engineering and manufacturing teams.",
     period: "2022-2024",
   },
   {
@@ -65,7 +66,7 @@ const workSections = [
     companyName: "IR arquitectura",
     companyUrl: "https://irarquitectura.com/",
     companyIcon: <IrArquitecturaLogo />,
-    text: "IR arquitectura is a multidisciplinary collective that brings together architects, designers, and professionals from diverse backgrounds. The studio operates as an open and adaptable system, challenging social, environmental, and economic conventions to develop innovative urban, architectural, and object-based solutions with a strong emphasis on energy efficiency. Our work has been featured in major architectural publications, exhibited at leading institutions, and presented at prominent conferences and biennials. These are some of my favorite projects from my time at IR arquitectura.",
+    text: "IR arquitectura is a multidisciplinary collective that brings together architects, designers, and professionals from diverse backgrounds. The studio operates as an open and adaptable system, challenging social, environmental, and economic conventions to develop innovative urban, architectural, and object-based solutions with a strong emphasis on energy efficiency. Our work has been featured in major architectural publications, exhibited at leading institutions, and presented at prominent conferences and biennials.",
     period: "2015-2018",
   },
 ];
@@ -93,57 +94,61 @@ export const Work = () => {
   });
   
   return (
-    <div className="p-4 pt-8 flex flex-col space-y-8">
-      <div className="w-full flex justify-start">
-        <BackButton variant="text" />
-      </div>
-      
-      <div className="w-full">
-        <h2 className="text-3xl tracking-tight mb-4">Work</h2>
-        <p className="text-muted-foreground mb-8">
-          My work spans across industries and disciplines, from design and development to manufacturing and engineering. The constant has been working with amazing people on things that fill me with joy.
-        </p>
+    <div className="p-4 pt-8 flex flex-col min-h-screen">
+      <div className="flex-1 space-y-8">
+        <div className="w-full flex justify-start">
+          <BackButton variant="text" />
+        </div>
         
-        {/* Sorting controls */}
-        <div className="flex items-center justify-end gap-4 mb-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSortAscending(!sortAscending)}
-            className="text-xs px-2 h-6 flex items-center gap-2"
-          >
-            <span className="text-muted-foreground">date</span>
-            {sortAscending ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-          </Button>
+        <div className="w-full">
+          <h2 className="text-3xl tracking-tight mb-4">Work</h2>
+          <p className="text-muted-foreground mb-8">
+            My work spans across industries and disciplines, from design and development to manufacturing and engineering. The constant has been working with amazing people on things that fill me with joy.
+          </p>
+          
+          {/* Sorting controls */}
+          <div className="flex items-center justify-end gap-4 mb-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSortAscending(!sortAscending)}
+              className="text-xs px-2 h-6 flex items-center gap-2"
+            >
+              <span className="text-muted-foreground">date</span>
+              {sortAscending ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+            </Button>
+          </div>
+        </div>
+        
+        <div className="w-full">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={sortAscending ? 'ascending' : 'descending'}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ 
+                duration: 0.75,
+                ease: [1, 0.66, 0.33, 0, 0.33, 0.66, 1]
+              }}
+              className="w-full"
+            >
+              {sortedWorkSections.map((section) => (
+                <div key={section.companyName}>
+                  <CompanySection 
+                    companyIcon={section.companyIcon} 
+                    companyName={section.companyName} 
+                    text={section.text} 
+                    period={section.period}
+                  />
+                </div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
       
-      <div className="w-full">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={sortAscending ? 'ascending' : 'descending'}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ 
-              duration: 0.75,
-              ease: [1, 0.66, 0.33, 0, 0.33, 0.66, 1]
-            }}
-            className="w-full"
-          >
-            {sortedWorkSections.map((section) => (
-              <div key={section.companyName}>
-                <CompanySection 
-                  companyIcon={section.companyIcon} 
-                  companyName={section.companyName} 
-                  text={section.text} 
-                  period={section.period}
-                />
-              </div>
-            ))}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+      <Footer />
     </div>
   );
 };
@@ -157,18 +162,28 @@ const CompanySection = ({ companyIcon, companyName, text, period }: Omit<WorkSec
     .replace(/^-|-$/g, '');
     
   return (
-    <div className="w-full relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1/2 after:h-px after:bg-border mb-12 pb-6">
+    <div className="w-full relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-px after:bg-border dark:after:bg-muted-foreground/30 mb-12 pb-6">
       <div className="w-full">
         {/* Link to company detail page */}
-        <Link to={`/work/${companySlug}`} className="block mb-4 hover:opacity-80 transition-opacity">
+        <Link to={`/work/${companySlug}`} className="block mb-4 hover:opacity-80 transition-opacity group">
           <h2 id={companyName.toLowerCase().replace(/\s+/g, '-')} className="text-2xl tracking-tight flex justify-between items-center gap-2">
-            {companyIcon}
+            <div className="flex items-center gap-2">
+              {companyIcon}
+              {/* <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" /> */}
+            </div>
             <span className="text-sm text-muted-foreground">{period}</span>
           </h2>
         </Link>
         <div className="flex flex-col">
           <p className="text-muted-foreground">
-            {text}
+            {text}{' '}
+            <Link 
+              to={`/work/${companySlug}`} 
+              className="inline-flex items-center gap-1 text-white hover:text-foreground transition-colors"
+            >
+              more
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </p>
         </div>
       </div>

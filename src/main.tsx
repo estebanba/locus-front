@@ -17,6 +17,7 @@ import { Projects } from './pages/Projects';
 import { Photography } from './pages/Photography';
 import { WorkDetail } from './pages/WorkDetail';
 import { ProjectDetail } from './pages/ProjectDetail';
+import { EducationDetail } from './pages/EducationDetail';
 import { WorkCompanyDetail } from './pages/WorkCompanyDetail';
 import Gift from './pages/Gift';
 import { ThemeProvider } from './components/theme-provider';
@@ -26,10 +27,10 @@ const router = createBrowserRouter([
   //   path: "/",
   //   Component: About,
   // },
-  {
-    path: "gift",
-    element: <Gift />,
-  },
+  // {
+  //   path: "gift",
+  //   element: <Gift />,
+  // },
   {
     Component: Layout,
     children: [
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
         {
           path: "projects/:projectName",
           element: <ProjectDetail />,
+        },
+        {
+          path: "education/:course",
+          element: <EducationDetail />,
         },
         {
           path: "photography",

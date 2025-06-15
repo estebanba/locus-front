@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface WordCloudProps {
   words: Array<{ text: string; value: number; recency?: number }>;
@@ -8,8 +9,16 @@ interface WordCloudProps {
  * Custom WordCloud component using HTML/CSS
  * Creates a responsive word cloud with varying font sizes based on word frequency and recency
  * Uses a mixed layout to avoid the tidy appearance
+ * Each word is clickable and navigates to search page with that keyword
  */
 export const WordCloud: React.FC<WordCloudProps> = ({ words }) => {
+  const navigate = useNavigate();
+
+  // Handle word click - navigate to search page with the clicked word as query
+  const handleWordClick = (word: string) => {
+    navigate(`/search?q=${encodeURIComponent(word)}`);
+  };
+
   // Apply recency weighting and sort words by final weighted value
   const weightedWords = words.map(word => {
     // Recency factor: more recent = higher multiplier (1.0 to 2.0)
@@ -80,7 +89,7 @@ export const WordCloud: React.FC<WordCloudProps> = ({ words }) => {
       {mixedWords.map((word, index) => (
         <span
           key={`${word.text}-${index}`}
-          className="inline-block px-1 py-0.5 text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-default select-none"
+          className="inline-block px-1 py-0.5 text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer select-none"
           style={{
             fontSize: `${getFontSize(word.weightedValue)}px`,
             opacity: getOpacity(word.weightedValue),
@@ -88,7 +97,8 @@ export const WordCloud: React.FC<WordCloudProps> = ({ words }) => {
             transform: `translate(${getRandomOffset()}px, ${getRandomOffset()}px)`,
             margin: `${Math.random() * 3}px ${Math.random() * 2}px`, // Random margins for organic feel
           }}
-          title={`${word.text}: ${word.value} occurrences${word.recency ? ` (recency: ${word.recency})` : ''}`}
+          title={`Click to search for "${word.text}" (${word.value} occurrences${word.recency ? `, recency: ${word.recency}` : ''})`}
+          onClick={() => handleWordClick(word.text)}
         >
           {word.text}
         </span>

@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getProjectsData } from '@/services/api'; // UPDATED: Import from api.ts
 import type { ProjectItem as Project } from '@/services/api'; // UPDATED: Import type, alias as Project
-import { Globe, Github } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Globe, Github as GitHubIcon } from "lucide-react";
 import { BackButton } from "@/components/ui/BackButton";
 import { ExpandableTags } from "@/components/ui/ExpandableTags";
+import { Footer } from "@/components/Footer";
 
 // Interface matching the data structure (assuming ProjectItem from api.ts is compatible)
 // If ProjectItem is not detailed enough, you might need to refine it in api.ts
@@ -74,99 +74,99 @@ export const ProjectDetail = () => {
   }
 
   return (
-    <div className="p-4 pt-8 flex flex-col space-y-8">
-      {/* Back button */}
-      <BackButton text="Back to Projects" variant="text" />
+    <div className="flex flex-col min-h-screen">
+      <div className="flex-1 p-4 pt-8 flex flex-col space-y-8">
+        {/* Back button */}
+        <BackButton text="Back to Projects" variant="text" />
 
-      {/* Project header */}
-      <div className="w-full">
-        <div className="mb-2">
-          <h1 className="text-3xl tracking-tight">{project.title}</h1>
-          <div className="text-muted-foreground">
-            {project.dateFrom} {project.dateUntil ? `- ${project.dateUntil}` : ''}
+        {/* Project header */}
+        <div className="w-full">
+          <div className="mb-2">
+            <h1 className="text-3xl tracking-tight">{project.title}</h1>
+            <div className="text-muted-foreground">
+              {project.dateFrom} {project.dateUntil ? `- ${project.dateUntil}` : ''}
+            </div>
           </div>
+          {project.company && (
+            <h2 className="text-xl text-muted-foreground mb-4">{project.company}</h2>
+          )}
+          <p className="text-lg mb-8">{project.summary ? project.summary : 'No summary available.'}</p>
         </div>
-        {project.company && (
-          <h2 className="text-xl text-muted-foreground mb-4">{project.company}</h2>
+
+        {/* Project details */}
+        {project.details && project.details.length > 0 && (
+          <div className="w-full">
+            <h3 className="text-xl mb-4">Project Details</h3>
+            <ul className="list-disc list-inside text-muted-foreground space-y-3 mb-8 pl-6">
+              {project.details.map((detail, index) => (
+                <li className="text-md" key={index}>{detail}</li>
+              ))}
+            </ul>
+          </div>
         )}
-        <p className="text-lg mb-8">{project.summary ? project.summary : 'No summary available.'}</p>
-      </div>
 
-      {/* Project details */}
-      {project.details && project.details.length > 0 && (
-        <div className="w-full">
-          <h3 className="text-xl mb-4">Project Details</h3>
-          <ul className="list-disc list-inside text-muted-foreground space-y-3 mb-8 pl-6">
-            {project.details.map((detail, index) => (
-              <li className="text-md" key={index}>{detail}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Project images (if available) */}
-      {project.images && Array.isArray(project.images) && project.images.length > 0 && (
-        <div className="w-full">
-          <h3 className="text-xl mb-4">Gallery</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {project.images.map((image: string, index: number) => (
-              <img 
-                key={index} 
-                src={image} 
-                alt={`${project.title} - image ${index + 1}`} 
-                className="rounded-md w-full h-auto object-cover"
-              />
-            ))}
+        {/* Project images (if available) */}
+        {project.images && Array.isArray(project.images) && project.images.length > 0 && (
+          <div className="w-full">
+            <h3 className="text-xl mb-4">Gallery</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {project.images.map((image: string, index: number) => (
+                <img 
+                  key={index} 
+                  src={image} 
+                  alt={`${project.title} - image ${index + 1}`} 
+                  className="rounded-md w-full h-auto object-cover"
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Technologies used */}
-      {project.technologies && project.technologies.length > 0 && (
-        <div className="w-full">
-          <h3 className="text-xl mb-4">Technologies</h3>
-          <ExpandableTags tags={project.technologies} />
-        </div>
-      )}
+        {/* Technologies used */}
+        {project.technologies && project.technologies.length > 0 && (
+          <div className="w-full">
+            <h3 className="text-xl mb-4">Technologies</h3>
+            <ExpandableTags tags={project.technologies} />
+          </div>
+        )}
 
-      {/* Labels */}
-      {project.labels && project.labels.length > 0 && (
-        <div className="w-full">
-          <h3 className="text-xl mb-4">Categories</h3>
-          <ExpandableTags tags={project.labels} />
-        </div>
-      )}
-      
-      {/* External links */}
-      <div className="w-full flex flex-wrap gap-4">
-        {project.url && (
-          <a 
-            href={project.url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex"
-          >
-            <Button className="gap-2">
-              <Globe className="h-4 w-4" />
-              Visit Project
-            </Button>
-          </a>
+        {/* Labels */}
+        {project.labels && project.labels.length > 0 && (
+          <div className="w-full">
+            <h3 className="text-xl mb-4">Categories</h3>
+            <ExpandableTags tags={project.labels} />
+          </div>
         )}
         
-        {project.github && (
-          <a 
-            href={project.github} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex"
-          >
-            <Button variant="outline" className="gap-2">
-              <Github className="h-4 w-4" />
+        {/* External links */}
+        <div className="w-full flex flex-wrap gap-4">
+          {project.url && (
+            <a 
+              href={project.url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors w-fit text-base text-muted-foreground"
+            >
+              <Globe className="h-4 w-4" />
+              Visit Project
+            </a>
+          )}
+          
+          {project.github && (
+            <a 
+              href={project.github} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 whitespace-nowrap hover:text-foreground transition-colors w-fit text-base text-muted-foreground"
+            >
+              <GitHubIcon className="h-4 w-4" />
               View Code
-            </Button>
-          </a>
-        )}
+            </a>
+          )}
+        </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }; 
