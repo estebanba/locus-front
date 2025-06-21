@@ -4,8 +4,49 @@ if (!API_BASE_URL) {
   console.error("VITE_API_BASE_URL is not defined. Please check your .env files.");
 }
 
+// Import fallback data files directly
+import fallbackWorkData from '../fallback/data/work.json';
+import fallbackProjectsData from '../fallback/data/projects.json';
+import fallbackEducationData from '../fallback/data/education.json';
+import fallbackPhotosData from '../fallback/data/photos.json';
+
 /**
- * Generic fetch wrapper
+ * Generic fetch wrapper with fallback support
+ * @param endpoint API endpoint to fetch from
+ * @param fallbackData Local fallback data to use if API fails
+ * @param options Fetch options
+ * @returns Promise<T> - Data from API or fallback
+ */
+async function fetchAPIWithFallback<T>(
+  endpoint: string, 
+  fallbackData: T, 
+  options: RequestInit = {}
+): Promise<T> {
+  try {
+    const url = `${API_BASE_URL}${endpoint}`;
+    console.log(`Attempting to fetch from API: ${url}`);
+    
+    const response = await fetch(url, options);
+    
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`API Error: ${response.status} ${response.statusText}`, errorBody);
+      throw new Error(`HTTP error! status: ${response.status} ${response.statusText} - ${errorBody}`);
+    }
+    
+    const data = await response.json() as T;
+    console.log(`✅ Successfully fetched data from API: ${endpoint}`);
+    return data;
+    
+  } catch (error) {
+    console.warn(`⚠️ API call failed for ${endpoint}, using fallback data:`, error);
+    console.log(`📁 Using local fallback data for ${endpoint}`);
+    return fallbackData;
+  }
+}
+
+/**
+ * Generic fetch wrapper (original version for non-fallback endpoints)
  * @param endpoint 
  * @param options 
  * @returns Promise<T>
@@ -109,29 +150,44 @@ export interface CloudinaryImage {
   metadata?: Record<string, unknown>;
 }
 
-// --- API Functions ---
+// --- API Functions with Fallback Support ---
 
+/**
+ * Fetch work data with fallback support
+ * If backend is unavailable, returns local fallback data
+ */
 export async function getWorkData(): Promise<WorkItem[]> {
-  return fetchAPI<WorkItem[]>('/data/work');
+  return fetchAPIWithFallback<WorkItem[]>('/data/work', fallbackWorkData as WorkItem[]);
 }
 
+/**
+ * Fetch projects data with fallback support
+ * If backend is unavailable, returns local fallback data
+ */
 export async function getProjectsData(): Promise<ProjectItem[]> {
-  // Assuming projects.json is served from /data/projects by your backend
-  // If it's still locus-back/src/data/projects.json, adjust backend route accordingly
-  return fetchAPI<ProjectItem[]>('/data/projects.json'); 
+  return fetchAPIWithFallback<ProjectItem[]>('/data/projects.json', fallbackProjectsData as ProjectItem[]);
 }
 
+/**
+ * Fetch education data with fallback support
+ * If backend is unavailable, returns local fallback data
+ */
 export async function getEducationData(): Promise<EducationItem[]> {
-  return fetchAPI<EducationItem[]>('/data/education.json');
+  return fetchAPIWithFallback<EducationItem[]>('/data/education.json', fallbackEducationData as EducationItem[]);
 }
 
+/**
+ * Fetch photos data with fallback support
+ * If backend is unavailable, returns local fallback data
+ */
 export async function getPhotosData(): Promise<PhotoData> {
-  return fetchAPI<PhotoData>('/data/photos.json');
+  return fetchAPIWithFallback<PhotoData>('/data/photos.json', fallbackPhotosData as PhotoData);
 }
 
 /**
  * Fetches a list of image details (URL, public_id, etc.) for a specific item 
  * from a Cloudinary folder via the backend.
+ * Note: This function does not have fallback support as it relies on dynamic image fetching
  * @param cloudinaryFolderPath The full Cloudinary folder path (e.g., "portfolio/work/casa-ato")
  * @returns Promise<CloudinaryImage[]>
  */
@@ -140,11 +196,15 @@ export async function getItemImageUrls(cloudinaryFolderPath: string): Promise<Cl
     console.warn('getItemImageUrls called with empty cloudinaryFolderPath');
     return [];
   }
-  // Ensure the folder path is suitable for a URL segment. 
-  // However, Cloudinary paths can contain '/', so direct encoding might be an issue if the backend expects it raw.
-  // The backend route new RegExp('^/images/(.*)$') captures it raw, so no encoding needed here.
-  console.log(`/api/cloudinary/images/${cloudinaryFolderPath}`);
-  return fetchAPI<CloudinaryImage[]>(`/cloudinary/images/${cloudinaryFolderPath}`);
+  
+  try {
+    console.log(`Attempting to fetch images from: /cloudinary/images/${cloudinaryFolderPath}`);
+    return await fetchAPI<CloudinaryImage[]>(`/cloudinary/images/${cloudinaryFolderPath}`);
+  } catch (error) {
+    console.warn(`⚠️ Failed to fetch images for ${cloudinaryFolderPath}:`, error);
+    console.log(`📷 Image fetching requires backend - returning empty array`);
+    return [];
+  }
 }
 
 // Removed obsolete getWorkItemImages function as getItemImageUrls is more generic
