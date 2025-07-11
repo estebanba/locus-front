@@ -150,6 +150,42 @@ export interface CloudinaryImage {
   metadata?: Record<string, unknown>;
 }
 
+// Blog post interfaces
+export interface BlogPost {
+  slug: string;
+  title: string;
+  description: string;
+  author?: string;
+  date: string;
+  tags?: string[];
+  image?: string; // Keep for backward compatibility
+  images?: string[]; // New array structure like work/projects
+  imagesPath?: string; // New path structure like work/projects
+  content: string;
+  excerpt: string;
+  readingTime: number;
+  // SEO fields
+  metaTitle?: string;
+  metaDescription?: string;
+  canonicalUrl?: string;
+  socialImage?: string;
+}
+
+export interface BlogPostSummary {
+  slug: string;
+  title: string;
+  description: string;
+  author?: string;
+  date: string;
+  tags?: string[];
+  image?: string; // Keep for backward compatibility
+  images?: string[]; // New array structure like work/projects
+  imagesPath?: string; // New path structure like work/projects
+  excerpt: string;
+  readingTime: number;
+  socialImage?: string; // For tooltips
+}
+
 // --- API Functions with Fallback Support ---
 
 /**
@@ -182,6 +218,38 @@ export async function getEducationData(): Promise<EducationItem[]> {
  */
 export async function getPhotosData(): Promise<PhotoData> {
   return fetchAPIWithFallback<PhotoData>('/data/photos.json', fallbackPhotosData as PhotoData);
+}
+
+/**
+ * Fetch all blog posts summaries
+ * No fallback support as blog is a new feature
+ */
+export async function getBlogPosts(): Promise<BlogPostSummary[]> {
+  return fetchAPI<BlogPostSummary[]>('/blog');
+}
+
+/**
+ * Fetch a single blog post by slug
+ * No fallback support as blog is a new feature
+ */
+export async function getBlogPost(slug: string): Promise<BlogPost> {
+  return fetchAPI<BlogPost>(`/blog/${slug}`);
+}
+
+/**
+ * Fetch blog posts by tag
+ * No fallback support as blog is a new feature
+ */
+export async function getBlogPostsByTag(tag: string): Promise<BlogPostSummary[]> {
+  return fetchAPI<BlogPostSummary[]>(`/blog/tag/${tag}`);
+}
+
+/**
+ * Fetch all blog tags
+ * No fallback support as blog is a new feature
+ */
+export async function getBlogTags(): Promise<string[]> {
+  return fetchAPI<string[]>('/blog/tags');
 }
 
 /**

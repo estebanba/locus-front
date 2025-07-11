@@ -16,7 +16,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ summary }) => {
   const heroLinks = [
     { text: "more about me", url: "/about" },
     { text: "work", url: "/work" },
-    { text: "projects", url: "/projects" }
+    { text: "projects", url: "/projects" },
+    { text: "blog", url: "/blog" }
   ];
 
   return (

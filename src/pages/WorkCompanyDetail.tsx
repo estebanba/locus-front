@@ -151,6 +151,15 @@ export const WorkCompanyDetail = () => {
               const projectSlug = project.name || project.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
               const companySlug = company?.companyName?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
               
+              // Determine image configuration for tooltip
+              const imageConfig = project.imagesPath && project.name ? {
+                cloudinary: {
+                  imagesPath: project.imagesPath,
+                  name: project.name
+                },
+                alt: project.title || 'Project image'
+              } : undefined;
+              
               return (
                 <ListCard
                   key={index}
@@ -161,6 +170,8 @@ export const WorkCompanyDetail = () => {
                   detailLink={companySlug && projectSlug ? `/work/${companySlug}/${projectSlug}` : '#'}
                   github={project.github}
                   url={project.url}
+                  imageConfig={imageConfig}
+                  isLast={index === sortedProjects.length - 1}
                 />
               );
             })}

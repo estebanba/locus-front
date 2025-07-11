@@ -1,6 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, Github, ExternalLink } from 'lucide-react';
+import { Plus
+  // , ExternalLink, Github as GitHubIcon 
+} from 'lucide-react';
+import { CardWrapper } from './CardWrapper';
 
 interface ListCardProps {
   title: string | null | undefined;
@@ -12,12 +14,33 @@ interface ListCardProps {
   github?: string | null;
   url?: string | null;
   className?: string;
+  isLast?: boolean;
+  /**
+   * Image configuration for tooltip
+   */
+  imageConfig?: {
+    /**
+     * Direct image URL (for items with direct image URLs)
+     */
+    directImageUrl?: string;
+    /**
+     * Cloudinary configuration (for work/projects)
+     */
+    cloudinary?: {
+      imagesPath: string;
+      name: string;
+    };
+    /**
+     * Alt text for the image
+     */
+    alt: string;
+  };
 }
 
 /**
  * ListCard component - Reusable card for work and project lists
  * Consistent styling across Work and Project pages
- * Features title, date, summary, and navigation to detail page
+ * Features title, date, summary, navigation to detail page, and optional image tooltips
  */
 export const ListCard: React.FC<ListCardProps> = ({
   title,
@@ -26,64 +49,62 @@ export const ListCard: React.FC<ListCardProps> = ({
   company,
   summary,
   detailLink,
-  github,
-  url,
-  className = ""
+  // github,
+  // url,
+  className = "",
+  isLast = false,
+  imageConfig
 }) => {
   const displayTitle = title || 'Untitled';
   
   return (
-    <div className={`py-4 border-b border-border last:border-b-0 ${className}`}>
-      <div className="flex justify-between items-start mb-1">
-        <h3 className="text-lg font-semibold">
-          <Link 
-            to={detailLink}
-            className="hover:underline"
-          >
+    <CardWrapper 
+      to={detailLink}
+      imageConfig={imageConfig}
+      className={className}
+      isLast={isLast}
+    >
+        <div className="flex justify-between items-start mb-1">
+          <h3 className="text-lg font-semibold hover:underline">
             {displayTitle}
-          </Link>
-        </h3>
-        <div className="flex items-center gap-x-2 text-sm">
-          {github && (
-            <a 
-              href={github} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              aria-label={`${displayTitle} GitHub Repository`}
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Github className="h-4 w-4" />
-            </a>
-          )}
-          {url && (
-            <a 
-              href={url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              aria-label={`${displayTitle} Live Website`}
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          )}
-          <Link 
-            to={detailLink}
-            className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-accent"
-            aria-label={`View ${displayTitle} details`}
-          >
-            <Plus className="h-4 w-4" />
-          </Link>
+          </h3>
+          <div className="flex items-center gap-x-2 text-sm">
+            {/* {github && (
+              <a 
+                href={github} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                aria-label={`${displayTitle} GitHub Repository`}
+                className="text-muted-foreground hover:text-foreground transition-colors z-10 relative"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <GitHubIcon className="h-4 w-4" />
+              </a>
+            )}
+            {url && (
+              <a 
+                href={url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                aria-label={`${displayTitle} Live Website`}
+                className="text-muted-foreground hover:text-foreground transition-colors z-10 relative"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            )} */}
+            <Plus className="h-4 w-4 text-muted-foreground" />
+          </div>
         </div>
-      </div>
-      <p className="text-sm text-muted-foreground mb-2">
-        {dateFrom || ''} {dateUntil ? `- ${dateUntil}` : ''}
-        {company && ` • ${company}`}
-      </p>
-      {summary && (
-        <p className="text-sm text-muted-foreground">
-          {summary}
+        <p className="text-sm text-muted-foreground mb-2">
+          {dateFrom || ''} {dateUntil ? `- ${dateUntil}` : ''}
+          {company && ` • ${company}`}
         </p>
-      )}
-    </div>
+        {summary && (
+          <p className="text-sm text-muted-foreground">
+            {summary}
+          </p>
+        )}
+      </CardWrapper>
   );
 }; 

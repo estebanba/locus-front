@@ -7,7 +7,8 @@ export const About = () => {
   // Navigation links for the about page
   const aboutLinks = [
     { text: "timeline", url: "/timeline" },
-    { text: "skillset", url: "/skillset" }
+    { text: "skillset", url: "/skillset" },
+    { text: "blog", url: "/blog" }
   ];
 
   return (

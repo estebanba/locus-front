@@ -27,7 +27,7 @@ import { HyphenLogo } from "@/components/icons/HyphenLogo";
 import { IrArquitecturaLogo } from "@/components/icons/IrArquitecturaLogo";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { CardWrapper } from "@/components/ui/CardWrapper";
 
 // Update the Activity interface to match work.json structure
 interface Activity {
@@ -133,13 +133,14 @@ export const Work = () => {
               }}
               className="w-full"
             >
-              {sortedWorkSections.map((section) => (
+              {sortedWorkSections.map((section, index) => (
                 <div key={section.companyName}>
                   <CompanySection 
                     companyIcon={section.companyIcon} 
                     companyName={section.companyName} 
                     text={section.text} 
                     period={section.period}
+                    isLast={index === sortedWorkSections.length - 1}
                   />
                 </div>
               ))}
@@ -154,7 +155,7 @@ export const Work = () => {
 };
 
 // Updated component that shows only company info
-const CompanySection = ({ companyIcon, companyName, text, period }: Omit<WorkSectionProps, 'sortedWorkData' | 'companyUrl'>) => {
+const CompanySection = ({ companyIcon, companyName, text, period, isLast = false }: Omit<WorkSectionProps, 'sortedWorkData' | 'companyUrl'> & { isLast?: boolean }) => {
   // Create URL-friendly company slug
   const companySlug = companyName
     .toLowerCase()
@@ -162,169 +163,23 @@ const CompanySection = ({ companyIcon, companyName, text, period }: Omit<WorkSec
     .replace(/^-|-$/g, '');
     
   return (
-    <div className="w-full relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-px after:bg-border dark:after:bg-muted-foreground/30 mb-12 pb-6">
-      <div className="w-full">
-        {/* Link to company detail page */}
-        <Link to={`/work/${companySlug}`} className="block mb-4 hover:opacity-80 transition-opacity group">
-          <h2 id={companyName.toLowerCase().replace(/\s+/g, '-')} className="text-2xl tracking-tight flex justify-between items-center gap-2">
-            <div className="flex items-center gap-2">
-              {companyIcon}
-              {/* <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" /> */}
-            </div>
-            <span className="text-sm text-muted-foreground">{period}</span>
-          </h2>
-        </Link>
-        <div className="flex flex-col">
-          <p className="text-muted-foreground">
-            {text}{' '}
-            <Link 
-              to={`/work/${companySlug}`} 
-              className="inline-flex items-center gap-1 text-white hover:text-foreground transition-colors"
-            >
-              more
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </p>
+    <CardWrapper to={`/work/${companySlug}`} className="py-5" isLast={isLast}>
+      <h2 id={companyName.toLowerCase().replace(/\s+/g, '-')} className="text-2xl tracking-tight flex justify-between items-center gap-2 mb-4">
+        <div className="flex items-center gap-2">
+          {companyIcon}
         </div>
+        <span className="text-sm text-muted-foreground">{period}</span>
+      </h2>
+      <div className="flex flex-col">
+        <p className="text-muted-foreground">
+          {text}{' '}
+          <span className="inline-flex items-center gap-1 text-white hover:text-foreground transition-colors">
+            more
+            <ArrowRight className="h-4 w-4" />
+          </span>
+        </p>
       </div>
-    </div>
+    </CardWrapper>
   );
 };
-
-// Original WorkSection and WorkCard components kept but commented out to preserve for later use
-/*
-const WorkSection = ({ companyIcon, companyName, companyUrl, text, period, sortedWorkData }: WorkSectionProps) => {
-  // Create URL-friendly company slug
-  const companySlug = companyName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-    
-  return (
-    <div className="w-full mb-12 mt-0">
-      <div className="w-full mb-6">
-        <Link to={`/work/${companySlug}`} className="block mb-4 hover:opacity-80 transition-opacity">
-          <h2 id={companyName.toLowerCase().replace(/\s+/g, '-')} className="text-2xl tracking-tight flex justify-between items-center gap-2">
-            {companyIcon}
-            <span className="text-lg text-muted-foreground">{period}</span>
-          </h2>
-        </Link>
-        <div className="flex flex-col space-y-4">
-          <a 
-            href={companyUrl} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {companyUrl}
-          </a>
-          <p className="text-muted-foreground">
-            {text}
-          </p>
-        </div>
-      </div>
-
-      {sortedWorkData.map((work, index) => (
-        work.company === companyName && <WorkCard key={index} activity={work} index={index} />
-      ))}
-    </div>
-    
-  );
-};
-
-const WorkCard = ({ activity, index }: { activity: Activity, index: number }) => {
-  return (
-    <Card key={index} className="flex flex-col w-full border-none shadow-none relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1/2 after:h-px after:bg-border mb-8 pb-0">
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value={`item-${index}`} className="border-none">
-              <CardHeader className="px-0 pb-2">
-                <div className="mb-2">
-                  <CardTitle className="mb-2">
-                    <Link 
-                      to={`/work/${activity.company
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '-')
-                        .replace(/^-|-$/g, '')}/${activity.title
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '-')
-                        .replace(/^-|-$/g, '')}`} 
-                      className="hover:underline"
-                    >
-                      {activity.title}
-                    </Link>
-                  </CardTitle>
-                  <CardDescription className="text-md">{activity.summary}</CardDescription>
-                </div>
-                <div className="flex justify-between items-center mt-2">
-                  <p className="text-md text-muted-foreground">
-                    {activity.dateFrom} {activity.dateUntil ? `- ${activity.dateUntil}` : ''}
-                  </p>
-                  <AccordionTrigger className="p-1 rounded-md hover:bg-accent hover:no-underline [&[data-state=open]>svg]:rotate-45 mr-0">
-                    <Plus className="h-5 w-5 shrink-0 transition-transform duration-200" />
-                  </AccordionTrigger>
-                </div>
-              </CardHeader>
-
-              <CardContent className="px-0 pt-2 mb-0">
-                <AccordionContent>
-                  <ul className="list-disc list-inside text-muted-foreground space-y-1 mb-6 pl-6">
-                    {activity.details.map((detail: string, detailIndex: Key | null | undefined) => (
-                      <li className="text-md" key={detailIndex}>{detail}</li>
-                    ))}
-                  </ul>
-                  <div className="pl-6 flex flex-col space-y-2">
-                    {activity.techStack && activity.techStack.length > 0 && (
-                      <div className="mb-4">
-                        <h4 className="text-sm text-muted-foreground mb-1">Tech Stack:</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {activity.techStack.map((tech: string, techIndex: Key | null | undefined) => (
-                            <span key={techIndex} className="bg-secondary/30 text-muted-foreground font-light px-2 py-0.5 rounded">
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {activity.features && activity.features.length > 0 && (
-                      <div className="mb-4">
-                        <h4 className="text-sm text-muted-foreground mb-1">Features:</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {activity.features.map((feature: string, featureIndex: Key | null | undefined) => (
-                            <span key={featureIndex} className="bg-secondary/30 text-muted-foreground font-light px-2 py-0.5 rounded">
-                              {feature}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {activity.media && activity.media.length > 0 && (
-                      <div className="mb-4">
-                        <h4 className="text-sm text-muted-foreground mb-1">Featured on:</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {activity.media.map((mediaItem, mediaIndex: Key | null | undefined) => (
-                            <a
-                              key={mediaIndex}
-                              href={mediaItem.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center bg-secondary/30 text-muted-foreground font-light px-2 py-0.5 rounded hover:bg-secondary/50"
-                            >
-                              <Globe className="h-3 w-3 mr-1" />
-                              {mediaItem.name}
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </AccordionContent>
-              </CardContent>
-            </AccordionItem>
-          </Accordion>
-        </Card>
-  );
-};
-*/
 

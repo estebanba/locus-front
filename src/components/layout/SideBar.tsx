@@ -48,6 +48,12 @@ const initialData = [
     isActive: false,
     isHovered: false,
   },
+  {
+    title: "Blog",
+    url: "/blog",
+    isActive: false,
+    isHovered: false,
+  },
 ];
 
 /**
@@ -198,21 +204,15 @@ export function SideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   onMouseLeave={() => handleMouseLeave(idx)}
                 >
                   <SidebarMenuButton
-                    asChild
-                    className="w-full justify-end"
+                    className="w-full justify-end font-medium cursor-pointer"
+                    onClick={(e) => {
+                      handleParentClick(idx);
+                      if (item.url && !item.url.startsWith('http')) {
+                        handleNavigate(item.url, e);
+                      }
+                    }}
                   >
-                    <a
-                      href={item.url}
-                      className="font-medium"
-                      onClick={(e) => {
-                        handleParentClick(idx);
-                        if (item.url && !item.url.startsWith('http')) {
-                          handleNavigate(item.url, e);
-                        }
-                      }}
-                    >
-                      {item.title}
-                    </a>
+                    {item.title}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
@@ -246,19 +246,14 @@ export function SideBar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         }}
                       >
                         <SidebarMenuButton
-                          asChild
-                          className="w-full justify-end text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                          className="w-full justify-end text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 cursor-pointer"
+                          onClick={(e) => {
+                            if (subItem.url && !subItem.url.startsWith('http')) {
+                              handleNavigate(subItem.url, e);
+                            }
+                          }}
                         >
-                          <a
-                            href={subItem.url}
-                            onClick={(e) => {
-                              if (subItem.url && !subItem.url.startsWith('http')) {
-                                handleNavigate(subItem.url, e);
-                              }
-                            }}
-                          >
-                            {subItem.title}
-                          </a>
+                          {subItem.title}
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}

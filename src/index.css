@@ -234,6 +234,9 @@ body::before {
   html {
     /* base font size */
     font-size: 14px;
+    /* prevent scrollbar flickering on navigation */
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
   }
   body {
     @apply bg-background text-foreground;

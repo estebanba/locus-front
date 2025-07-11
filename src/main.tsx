@@ -19,6 +19,8 @@ import { WorkDetail } from './pages/WorkDetail';
 import { ProjectDetail } from './pages/ProjectDetail';
 import { EducationDetail } from './pages/EducationDetail';
 import { WorkCompanyDetail } from './pages/WorkCompanyDetail';
+import { Blog } from './pages/Blog';
+import { BlogPost } from './pages/BlogPost';
 import { ThemeProvider } from './components/theme-provider';
 
 const router = createBrowserRouter([
@@ -81,6 +83,14 @@ const router = createBrowserRouter([
         {
           path: "search",
           element: <SearchTable />,
+        },
+        {
+          path: "blog",
+          element: <Blog />,
+        },
+        {
+          path: "blog/:slug",
+          element: <BlogPost />,
         },
        
     ],

@@ -78,19 +78,32 @@ export const Projects = () => {
         <div className="w-full">
           {projects.length > 0 ? (
             <div className="space-y-0">
-              {projects.map((project, index) => (
-                <ListCard
-                  key={index}
-                  title={project.title}
-                  dateFrom={project.dateFrom}
-                  dateUntil={project.dateUntil}
-                  company={project.company}
-                  summary={project.summary}
-                  detailLink={`/projects/${project.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'untitled-project'}`}
-                  github={project.github}
-                  url={project.url}
-                />
-              ))}
+              {projects.map((project, index) => {
+                // Determine image configuration for tooltip
+                const imageConfig = project.imagesPath && project.name ? {
+                  cloudinary: {
+                    imagesPath: project.imagesPath,
+                    name: project.name
+                  },
+                  alt: project.title || 'Project image'
+                } : undefined;
+
+                return (
+                  <ListCard
+                    key={index}
+                    title={project.title}
+                    dateFrom={project.dateFrom}
+                    dateUntil={project.dateUntil}
+                    company={project.company}
+                    summary={project.summary}
+                    detailLink={`/projects/${project.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'untitled-project'}`}
+                    github={project.github}
+                    url={project.url}
+                    imageConfig={imageConfig}
+                    isLast={index === projects.length - 1}
+                  />
+                );
+              })}
             </div>
           ) : (
             <p className="text-center text-muted-foreground">No projects to display.</p>
