@@ -117,9 +117,12 @@ function BlogPostCard({ post, isLast = false }: { post: BlogPostSummary; isLast?
     day: 'numeric',
   });
 
-  // Determine image configuration for tooltip
-  const imageConfig = post.socialImage ? {
-    directImageUrl: post.socialImage,
+  // Determine image configuration for tooltip based on new 'name' and 'imagesPath' properties
+  const imageConfig = post.imagesPath && post.name ? {
+    cloudinary: {
+      imagesPath: post.imagesPath,
+      name: post.name
+    },
     alt: post.title
   } : undefined;
 

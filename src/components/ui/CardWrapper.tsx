@@ -3,6 +3,18 @@ import { Link } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getItemImageUrls } from '@/services/api';
 
+/**
+ * Creates a transformed Cloudinary URL for a thumbnail.
+ * Injects transformation parameters before the '/upload/' part of the URL.
+ * @param secureUrl The original Cloudinary image URL.
+ * @returns The transformed URL for a smaller, optimized image.
+ */
+const generateThumbnailUrl = (secureUrl: string): string => {
+  // Transformation: width=400, format=auto, quality=auto
+  const transformation = "w_400,f_auto,q_auto";
+  return secureUrl.replace("/upload/", `/upload/${transformation}/`);
+};
+
 interface CardWrapperProps {
   /**
    * The URL to navigate to when the card is clicked
@@ -81,16 +93,17 @@ export const CardWrapper: React.FC<CardWrapperProps> = ({
         }
 
         if (imageUrl) {
+          const thumbnailUrl = generateThumbnailUrl(imageUrl);
           // Preload the image
           const img = new Image();
           img.onload = () => {
-            setTooltipImageUrl(imageUrl);
+            setTooltipImageUrl(thumbnailUrl);
             setImageLoaded(true);
           };
           img.onerror = () => {
-            console.warn('Failed to load tooltip image:', imageUrl);
+            console.warn('Failed to load tooltip image:', thumbnailUrl);
           };
-          img.src = imageUrl;
+          img.src = thumbnailUrl;
         }
       } catch (error) {
         console.warn('Error loading tooltip image:', error);
@@ -98,7 +111,7 @@ export const CardWrapper: React.FC<CardWrapperProps> = ({
     };
 
     loadImage();
-  }, [imageConfig]);
+  }, [imageConfig, randomIndex]);
 
   const cardContent = (
     <Link 

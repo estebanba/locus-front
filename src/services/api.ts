@@ -161,6 +161,7 @@ export interface BlogPost {
   image?: string; // Keep for backward compatibility
   images?: string[]; // New array structure like work/projects
   imagesPath?: string; // New path structure like work/projects
+  name?: string; // For Cloudinary folder path
   content: string;
   excerpt: string;
   readingTime: number;
@@ -181,6 +182,7 @@ export interface BlogPostSummary {
   image?: string; // Keep for backward compatibility
   images?: string[]; // New array structure like work/projects
   imagesPath?: string; // New path structure like work/projects
+  name?: string; // For Cloudinary folder path
   excerpt: string;
   readingTime: number;
   socialImage?: string; // For tooltips

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getBlogPost, BlogPost as BlogPostType } from '@/services/api';
+import { getBlogPost, getItemImageUrls, BlogPost as BlogPostType } from '@/services/api';
 import { useSEO, defaultSEO } from '@/hooks/useSEO';
 import { BackButton } from '@/components/ui/BackButton';
 import { Footer } from '@/components/Footer';
@@ -13,6 +13,7 @@ import { Footer } from '@/components/Footer';
 export function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPostType | null>(null);
+  const [postImageUrl, setPostImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,6 +41,25 @@ export function BlogPost() {
     fetchPost();
   }, [slug]);
 
+  useEffect(() => {
+    const fetchPostImage = async () => {
+      if (post && post.imagesPath && post.name) {
+        try {
+          const images = await getItemImageUrls(`${post.imagesPath}${post.name}`);
+          if (images.length > 0) {
+            // Select a random image
+            const randomIndex = Math.floor(Math.random() * images.length);
+            setPostImageUrl(images[randomIndex].secure_url);
+          }
+        } catch (err) {
+          console.error('Failed to load post image:', err);
+        }
+      }
+    };
+
+    fetchPostImage();
+  }, [post]);
+
   // Set SEO meta tags for the blog post
   useSEO({
     ...defaultSEO,
@@ -48,7 +68,7 @@ export function BlogPost() {
     keywords: [...(defaultSEO.keywords || []), ...(post?.tags || [])],
     author: post?.author || defaultSEO.author,
     canonicalUrl: post?.canonicalUrl || `${window.location.origin}/blog/${slug}`,
-    image: post?.socialImage || post?.image,
+    image: postImageUrl || post?.socialImage || post?.image,
     type: 'article',
     publishedTime: post?.date,
     tags: post?.tags,
@@ -105,10 +125,10 @@ export function BlogPost() {
         <article className="w-full">
           {/* Blog post header */}
           <header className="mb-8">
-            {(post.socialImage || post.image) && (
+            {postImageUrl && (
               <div className="aspect-video overflow-hidden rounded-lg mb-8">
                 <img
-                  src={post.socialImage || post.image}
+                  src={postImageUrl}
                   alt={post.title}
                   className="w-full h-full object-cover"
                 />
@@ -196,7 +216,7 @@ export function BlogPost() {
                 name: post.author || "Esteban Basili",
               },
               datePublished: post.date,
-              image: post.image,
+              image: postImageUrl || post.image,
               publisher: {
                 "@type": "Person",
                 name: "Esteban Basili",
