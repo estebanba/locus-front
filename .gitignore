@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 public/work/*
+
+.env.development
+.env.production
+.env
