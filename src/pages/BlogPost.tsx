@@ -175,13 +175,19 @@ export function BlogPost() {
           {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {post.tags.map((tag) => (
-                  <Link
-                    key={tag}
-                    to={`/blog/tag/${tag}`}
-                    className="inline-block px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors"
-                  >
-                    #{tag}
-                  </Link>
+                  // <Link
+                  //   key={tag}
+                  //   to={`/blog/tag/${tag}`}  
+                  //   className="inline-block px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors"
+                  // >
+                  //   #{tag}
+                  // </Link>
+                  <p
+                  key={tag}
+                  className="inline-block px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors"
+                >
+                  #{tag}
+                </p>
                 ))}
               </div>
             )}
