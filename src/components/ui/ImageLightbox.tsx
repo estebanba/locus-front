@@ -6,7 +6,8 @@ import './ImageCarousel.css'; // Import existing styles
 // Generic image interface that works with both CloudinaryImage and Photo
 export interface LightboxImage {
   id: string;
-  src: string;
+  src: string; // Full resolution image
+  thumbnailSrc?: string; // Thumbnail for blur backdrop
   alt: string;
   width?: number;
   height?: number;
@@ -32,6 +33,7 @@ const cursorRight = `url("data:image/svg+xml;utf8,${encodeURIComponent(chevronRi
 /**
  * Unified ImageLightbox component for displaying images in a modal overlay.
  * Can be used by both ImageCarousel and PhotoGallery for consistent behavior.
+ * Uses thumbnail as blur backdrop while full-res image loads.
  */
 export const ImageLightbox: React.FC<ImageLightboxProps> = ({
   image,
@@ -42,12 +44,18 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
   showNavigationHints = true
 }) => {
   const [hoveredImageHalf, setHoveredImageHalf] = useState<'left' | 'right' | null>(null);
+  const [fullResLoaded, setFullResLoaded] = useState(false);
   const prevImageRef = useRef<LightboxImage | null>(null);
 
   // Track previous image for animation variants
   useEffect(() => {
     prevImageRef.current = image;
   }, [image]);
+
+  // Reset loading state when image changes
+  useEffect(() => {
+    setFullResLoaded(false);
+  }, [image?.id]);
 
   const goToNextImage = useCallback(() => {
     if (!image || images.length <= 1) return;
@@ -139,21 +147,60 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
         exit={{ opacity: 0 }}
         onClick={onClose}
       >
-        <motion.img
-          key={image.id}
-          src={image.src}
-          alt={image.alt || `${altText} - expanded image`}
-          className="expanded-image-content"
-          variants={imageAnimationVariants}
-          initial={currentInitial}
-          animate={currentAnimate}
-          exit={currentExit}
-          layoutId={(isOpeningModal || isClosingModal) ? `image-${image.id}` : undefined}
-          onClick={handleImageClick}
-          onMouseMove={handleImageMouseMove}
-          onMouseLeave={handleImageMouseLeave}
-          style={{ cursor: getCursorStyle() }}
-        />
+        {/* Image container with relative positioning for absolute children */}
+        <div className="relative w-full h-full flex items-center justify-center">
+          {/* Blurred thumbnail backdrop - absolute positioned */}
+          {image.thumbnailSrc && (
+            <motion.img
+              src={image.thumbnailSrc}
+              alt=""
+              className="absolute max-w-full max-h-full object-contain"
+              style={{ 
+                filter: 'blur(20px) brightness(0.7)',
+                zIndex: 1
+              }}
+              initial={{ opacity: 1 }}
+              animate={{ opacity: fullResLoaded ? 0 : 1 }}
+              transition={{ duration: 0.3 }}
+            />
+          )}
+
+          {/* Full resolution image - absolute positioned on top */}
+          <motion.img
+            key={image.id}
+            src={image.src}
+            alt={image.alt || `${altText} - expanded image`}
+            className="absolute max-w-full max-h-full object-contain"
+            variants={imageAnimationVariants}
+            initial={currentInitial}
+            animate={currentAnimate}
+            exit={currentExit}
+            layoutId={(isOpeningModal || isClosingModal) ? `image-${image.id}` : undefined}
+            onClick={handleImageClick}
+            onMouseMove={handleImageMouseMove}
+            onMouseLeave={handleImageMouseLeave}
+            onLoad={() => setFullResLoaded(true)}
+            style={{
+              cursor: getCursorStyle(),
+              opacity: fullResLoaded ? 1 : 0,
+              transition: 'opacity 0.5s ease-in-out',
+              zIndex: 2
+            }}
+          />
+        </div>
+        
+        {/* Loading indicator while full-res loads */}
+        {!fullResLoaded && (
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ zIndex: 3 }}
+          >
+            <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          </motion.div>
+        )}
         
         <motion.button
           className="expanded-image-close-button"
@@ -161,6 +208,7 @@ export const ImageLightbox: React.FC<ImageLightboxProps> = ({
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1, transition: { delay: 0.2 } }}
           exit={{ opacity: 0, scale: 0.5 }}
+          style={{ zIndex: 4 }}
         >
           <X size={32} />
         </motion.button>

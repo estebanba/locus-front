@@ -20,10 +20,10 @@ export const transformCloudinaryUrl = (secureUrl: string, transformation: string
  * Creates a thumbnail version of a Cloudinary image optimized for gallery views.
  * Uses automatic format, quality optimization, and progressive loading.
  * @param secureUrl The original Cloudinary image URL.
- * @param width The desired width in pixels (default: 300)
+ * @param width The desired width in pixels (default: 400)
  * @returns The thumbnail URL.
  */
-export const generateThumbnailUrl = (secureUrl: string, width: number = 300): string => {
+export const generateThumbnailUrl = (secureUrl: string, width: number = 400): string => {
   const transformation = `w_${width},f_auto,q_auto,c_fill,ar_1:1,fl_progressive`;
   return transformCloudinaryUrl(secureUrl, transformation);
 };
@@ -32,10 +32,10 @@ export const generateThumbnailUrl = (secureUrl: string, width: number = 300): st
  * Creates a mobile-optimized thumbnail that preserves natural aspect ratios.
  * Perfect for mobile vertical feeds where natural proportions are desired.
  * @param secureUrl The original Cloudinary image URL.
- * @param width The desired width in pixels (default: 400)
+ * @param width The desired width in pixels (default: 600)
  * @returns The mobile thumbnail URL with natural aspect ratio.
  */
-export const generateMobileThumbnailUrl = (secureUrl: string, width: number = 400): string => {
+export const generateMobileThumbnailUrl = (secureUrl: string, width: number = 600): string => {
   const transformation = `w_${width},f_auto,q_auto,c_fit,fl_progressive`;
   return transformCloudinaryUrl(secureUrl, transformation);
 };
@@ -56,11 +56,11 @@ export const generateMediumUrl = (secureUrl: string, width: number = 1200): stri
  * Creates an optimized high-quality version for full-screen viewing with faster loading.
  * Uses progressive loading, optimized compression, and size limits for performance.
  * @param secureUrl The original Cloudinary image URL.
- * @param width The desired maximum width in pixels (default: 1600)
+ * @param width The desired maximum width in pixels (default: 1200)
  * @returns The optimized high-quality image URL.
  */
-export const generateHighQualityUrl = (secureUrl: string, width: number = 1600): string => {
-  const transformation = `w_${width},f_auto,q_80,fl_progressive,c_limit,dpr_auto`;
+export const generateHighQualityUrl = (secureUrl: string, width: number = 1200): string => {
+  const transformation = `w_${width},f_auto,q_75,fl_progressive,c_limit,dpr_auto`;
   return transformCloudinaryUrl(secureUrl, transformation);
 };
 

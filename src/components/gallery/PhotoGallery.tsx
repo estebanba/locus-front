@@ -214,6 +214,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, className }) => {
   const convertToLightboxImage = (photo: Photo): LightboxImage => ({
     id: photo.id,
     src: photo.fullSrc,
+    thumbnailSrc: photo.src, // Use thumbnail for blur backdrop
     alt: photo.alt,
     title: photo.alt,
   });

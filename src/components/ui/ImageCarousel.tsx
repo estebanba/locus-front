@@ -15,6 +15,7 @@ import './ImageCarousel.css'
 import { CloudinaryImage } from '../../services/api'
 import CarouselSkeleton from './CarouselSkeleton'
 import { ImageLightbox, type LightboxImage } from './ImageLightbox'
+import { generateThumbnailUrl, generateMediumUrl } from '@/utils/cloudinary';
 
 const TWEEN_FACTOR_BASE = 0.2;
 
@@ -146,10 +147,11 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = (props) => {
     setExpandedImage(null);
   };
 
-  // Convert CloudinaryImages to LightboxImages
+  // Convert CloudinaryImages to LightboxImages with optimized URLs
   const lightboxImages: LightboxImage[] = images.map(image => ({
     id: image.public_id,
-    src: image.secure_url,
+    src: generateMediumUrl(image.secure_url), // Optimized medium resolution for faster loading
+    thumbnailSrc: generateThumbnailUrl(image.secure_url), // Thumbnail for blur backdrop
     alt: `${altText} - ${image.public_id}`,
     width: image.width,
     height: image.height,
