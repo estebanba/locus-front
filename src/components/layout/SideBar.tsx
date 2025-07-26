@@ -54,6 +54,12 @@ const initialData = [
     isActive: false,
     isHovered: false,
   },
+  {
+    title: "Photography",
+    url: "/photography",
+    isActive: false,
+    isHovered: false,
+  },
 ];
 
 /**

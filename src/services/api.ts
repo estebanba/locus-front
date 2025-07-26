@@ -150,6 +150,23 @@ export interface CloudinaryImage {
   metadata?: Record<string, unknown>;
 }
 
+// Photography-specific interface for images with parsed metadata
+export interface PhotographyImage {
+  public_id: string;
+  secure_url: string;
+  width?: number;
+  height?: number;
+  format?: string;
+  created_at?: string;
+  metadata?: {
+    year?: string;
+    topic?: string;
+    folder?: string;
+    category?: string;
+    [key: string]: unknown;
+  };
+}
+
 // Blog post interfaces
 export interface BlogPost {
   slug: string;
@@ -220,6 +237,14 @@ export async function getEducationData(): Promise<EducationItem[]> {
  */
 export async function getPhotosData(): Promise<PhotoData> {
   return fetchAPIWithFallback<PhotoData>('/data/photos.json', fallbackPhotosData as PhotoData);
+}
+
+/**
+ * Fetch photography images from Cloudinary nested folder structure
+ * No fallback support as this is a new Cloudinary-based feature
+ */
+export async function getPhotographyImages(): Promise<PhotographyImage[]> {
+  return fetchAPI<PhotographyImage[]>('/cloudinary/photography');
 }
 
 /**

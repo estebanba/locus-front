@@ -14,7 +14,7 @@ import { Skillset } from './pages/Skillset';
 // import { Start } from './pages/Start';
 import { SearchTable } from './pages/SearchTable';
 import { Projects } from './pages/Projects';
-import { Photography } from './pages/Photography';
+import Photography from './pages/Photography';
 import { WorkDetail } from './pages/WorkDetail';
 import { ProjectDetail } from './pages/ProjectDetail';
 import { EducationDetail } from './pages/EducationDetail';

@@ -2,18 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getItemImageUrls } from '@/services/api';
-
-/**
- * Creates a transformed Cloudinary URL for a thumbnail.
- * Injects transformation parameters before the '/upload/' part of the URL.
- * @param secureUrl The original Cloudinary image URL.
- * @returns The transformed URL for a smaller, optimized image.
- */
-const generateThumbnailUrl = (secureUrl: string): string => {
-  // Transformation: width=400, format=auto, quality=auto
-  const transformation = "w_400,f_auto,q_auto";
-  return secureUrl.replace("/upload/", `/upload/${transformation}/`);
-};
+import { generateThumbnailUrl } from '@/utils/cloudinary';
 
 interface CardWrapperProps {
   /**
