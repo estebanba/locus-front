@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { getPhotographyImages } from '@/services/api'; 
 import PhotoGallery from '../components/gallery/PhotoGallery';
-import { generateThumbnailUrl, generateHighQualityUrl } from '@/utils/cloudinary';
+import { generateThumbnailUrl, generateHighQualityUrl, generateMobileOptimizedUrl, generateMobileThumbnailUrl } from '@/utils/cloudinary';
 import { BackButton } from '@/components/ui/BackButton';
 import { ChevronDown } from 'lucide-react';
 
@@ -93,13 +93,30 @@ const Photography = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const fetchAndProcessPhotos = async () => {
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      const wasMobile = isMobile;
+      const newIsMobile = window.innerWidth < 768; // md breakpoint
+      if (wasMobile !== newIsMobile) {
+        setIsMobile(newIsMobile);
+        console.log('🔄 Mobile state changed:', { from: wasMobile, to: newIsMobile, windowWidth: window.innerWidth });
+      }
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []); // Remove isMobile dependency to prevent infinite loops
+
+  const fetchAndProcessPhotos = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
-      console.log('🔍 Starting Photography API fetch...');
+      console.log('🔍 Starting Photography API fetch... isMobile:', isMobile);
       const response = await getPhotographyImages();
       console.log('📡 Photography API Response:', response);
       console.log('📊 Total images received:', response.length);
@@ -152,16 +169,37 @@ const Photography = () => {
         metadata: img.metadata
       })));
 
-      const processedPhotos: DisplayPhoto[] = response.map((img) => ({
-        id: img.public_id,
-        src: generateThumbnailUrl(img.secure_url),
-        fullSrc: generateHighQualityUrl(img.secure_url),
-        alt: (typeof img.metadata?.alt === 'string' ? img.metadata.alt : `Photo from ${img.metadata?.topic || 'Unknown'}`),
-        category: img.metadata?.topic || 'Unknown',
-        year: img.metadata?.year || 'Unknown',
-        topic: img.metadata?.topic || 'Unknown',
-        folder: img.metadata?.folder || 'Unknown',
-      }));
+      console.log('📱 Processing images with mobile state:', isMobile);
+      
+      const processedPhotos: DisplayPhoto[] = response.map((img, index) => {
+        const thumbnailUrl = isMobile 
+          ? generateMobileThumbnailUrl(img.secure_url) 
+          : generateThumbnailUrl(img.secure_url);
+        const fullUrl = isMobile 
+          ? generateMobileOptimizedUrl(img.secure_url) 
+          : generateHighQualityUrl(img.secure_url);
+        
+        // Log first 3 URLs for debugging
+        if (index < 3) {
+          console.log(`🖼️ Image ${index + 1} URLs:`, {
+            isMobile,
+            original: img.secure_url,
+            thumbnail: thumbnailUrl,
+            full: fullUrl
+          });
+        }
+        
+        return {
+          id: img.public_id,
+          src: thumbnailUrl,
+          fullSrc: fullUrl,
+          alt: (typeof img.metadata?.alt === 'string' ? img.metadata.alt : `Photo from ${img.metadata?.topic || 'Unknown'}`),
+          category: img.metadata?.topic || 'Unknown',
+          year: img.metadata?.year || 'Unknown',
+          topic: img.metadata?.topic || 'Unknown',
+          folder: img.metadata?.folder || 'Unknown',
+        };
+      });
 
       console.log('✅ Processed photos:', processedPhotos.length);
       
@@ -193,11 +231,11 @@ const Photography = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isMobile]);
 
   useEffect(() => {
     fetchAndProcessPhotos();
-  }, []);
+  }, [fetchAndProcessPhotos]); // Re-fetch when mobile state changes for optimized image URLs
 
   // Filter photos based on selected year and topic
   useEffect(() => {

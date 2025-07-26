@@ -23,15 +23,27 @@ interface ThumbnailProps {
   photo: Photo;
   onPhotoClick: (photo: Photo) => void;
   index: number;
+  isMobile: boolean;
 }
 
 // Configuration
 const IMAGES_PER_BATCH = 20; // Load 20 images at a time
 const PRELOAD_THRESHOLD = 0.5; // Start loading when 50% visible
 
-const PhotoThumbnail: React.FC<ThumbnailProps> = ({ photo, onPhotoClick, index }) => {
+const PhotoThumbnail: React.FC<ThumbnailProps> = ({ photo, onPhotoClick, index, isMobile }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [skeletonVisible, setSkeletonVisible] = useState(true);
+
+  // Debug mobile detection and image URLs
+  useEffect(() => {
+    if (index < 3) { // Only log first 3 images
+      console.log(`📱 PhotoThumbnail ${index + 1}:`, { 
+        isMobile, 
+        src: photo.src,
+        aspectRatioClass: isMobile ? 'h-auto (natural)' : 'aspect-square'
+      });
+    }
+  }, [isMobile, photo.src, index]);
 
   // Handle image load
   const handleImageLoad = () => {
@@ -48,7 +60,11 @@ const PhotoThumbnail: React.FC<ThumbnailProps> = ({ photo, onPhotoClick, index }
 
   return (
     <motion.div 
-      className="relative overflow-hidden cursor-pointer rounded-lg group"
+      className={`relative overflow-hidden rounded-lg ${
+        isMobile 
+          ? 'w-full cursor-default' // Mobile: full width, no cursor pointer since no lightbox
+          : 'cursor-pointer group' // Desktop: cursor pointer for lightbox
+      }`}
       onClick={() => onPhotoClick(photo)}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -59,7 +75,7 @@ const PhotoThumbnail: React.FC<ThumbnailProps> = ({ photo, onPhotoClick, index }
         ease: "easeOut" 
       }}
       layout
-      whileHover={{ scale: 1.02 }}
+      whileHover={!isMobile ? { scale: 1.02 } : {}} // Only hover effect on desktop
     >
       {/* Dark skeleton overlay */}
       {skeletonVisible && (
@@ -75,11 +91,15 @@ const PhotoThumbnail: React.FC<ThumbnailProps> = ({ photo, onPhotoClick, index }
         </div>
       )}
       
-      {/* Actual image with zoom effect */}
+      {/* Actual image with proper aspect ratios */}
       <motion.img
         src={photo.src}
         alt={photo.alt}
-        className="w-full h-auto object-cover aspect-square rounded-lg transition-transform duration-300 ease-out group-hover:scale-105"
+        className={`w-full object-cover rounded-lg transition-transform duration-300 ease-out ${
+          isMobile 
+            ? 'h-auto' // Mobile: natural height, natural aspect ratio
+            : 'aspect-square group-hover:scale-105' // Desktop: square with hover zoom
+        }`}
         loading="lazy"
         onLoad={handleImageLoad}
         initial={{ opacity: 0 }}
@@ -87,8 +107,10 @@ const PhotoThumbnail: React.FC<ThumbnailProps> = ({ photo, onPhotoClick, index }
         transition={{ duration: 0.5, ease: "easeOut" }}
       />
       
-      {/* Subtle overlay on hover for better visual feedback */}
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 rounded-lg" />
+      {/* Subtle overlay on hover for better visual feedback - only on desktop */}
+      {!isMobile && (
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 rounded-lg" />
+      )}
     </motion.div>
   );
 };
@@ -116,12 +138,24 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, className }) => {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [visibleCount, setVisibleCount] = useState(IMAGES_PER_BATCH);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const loadingTriggerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Get currently visible photos
   const visiblePhotos = photos.slice(0, visibleCount);
   const hasMorePhotos = visibleCount < photos.length;
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Load more photos function
   const loadMorePhotos = useCallback(() => {
@@ -169,9 +203,11 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, className }) => {
     setVisibleCount(IMAGES_PER_BATCH);
   }, [photos]);
 
-  // Handle photo click
+  // Handle photo click - disable lightbox on mobile
   const handlePhotoClick = (photo: Photo) => {
-    setSelectedPhoto(photo);
+    if (!isMobile) {
+      setSelectedPhoto(photo);
+    }
   };
 
   // Convert Photo to LightboxImage format
@@ -199,7 +235,10 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, className }) => {
   return (
     <div className={className}>
       <motion.div 
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+        className={isMobile 
+          ? "flex flex-col gap-6" // Mobile: larger gap to match visual padding
+          : "grid grid-cols-2 lg:grid-cols-3 gap-4" // Desktop: grid layout
+        }
         layout
       >
         <AnimatePresence mode="popLayout">
@@ -209,6 +248,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, className }) => {
               photo={photo}
               onPhotoClick={handlePhotoClick}
               index={index}
+              isMobile={isMobile}
             />
           ))}
           
@@ -217,7 +257,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, className }) => {
             <div
               key="loading-trigger"
               ref={loadingTriggerRef}
-              className="col-span-full h-4"
+              className={isMobile ? "w-full h-4" : "col-span-full h-4"}
               aria-hidden="true"
             />
           )}
@@ -229,8 +269,8 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos, className }) => {
         </AnimatePresence>
       </motion.div>
 
-      {/* Lightbox */}
-      {selectedPhoto && (
+      {/* Lightbox - only render on desktop */}
+      {!isMobile && selectedPhoto && (
         <ImageLightbox
           image={currentLightboxImage}
           images={lightboxImages}
