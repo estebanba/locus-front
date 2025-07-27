@@ -241,14 +241,22 @@ const Photography = () => {
   useEffect(() => {
     let filtered = allDisplayablePhotos;
 
+    console.log('🔍 Filtering - Starting with:', allDisplayablePhotos.length, 'photos');
+    console.log('🔍 Selected filters:', { selectedYear, selectedTopic });
+
     if (selectedYear && selectedYear !== 'all') {
       filtered = filtered.filter(photo => photo.year === selectedYear);
+      console.log('🔍 After year filter:', filtered.length, 'photos');
     }
 
     if (selectedTopic && selectedTopic !== 'all') {
       filtered = filtered.filter(photo => photo.topic === selectedTopic);
+      console.log('🔍 After topic filter:', filtered.length, 'photos');
     }
 
+    console.log('🔍 Final filtered photos:', filtered.length);
+    console.log('🔍 First 5 photos topics:', filtered.slice(0, 5).map(p => ({ topic: p.topic, year: p.year })));
+    
     setFilteredPhotos(filtered);
   }, [allDisplayablePhotos, selectedYear, selectedTopic]);
 

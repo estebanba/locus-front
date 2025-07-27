@@ -27,7 +27,7 @@ interface ThumbnailProps {
 }
 
 // Configuration
-const IMAGES_PER_BATCH = 20; // Load 20 images at a time
+const IMAGES_PER_BATCH = 50; // Show all images initially for debugging
 const PRELOAD_THRESHOLD = 0.5; // Start loading when 50% visible
 
 const PhotoThumbnail: React.FC<ThumbnailProps> = ({ photo, onPhotoClick, index, isMobile }) => {
