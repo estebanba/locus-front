@@ -266,7 +266,7 @@ const Photography = () => {
         <div className="mb-2">
           <BackButton variant="text" />
           <h1 className="text-3xl mb-2 mt-6">Photography</h1>
-          <p className="text-muted-foreground">Going around my 50mm and my phone.</p>
+          <p className="text-muted-foreground">Strolling around with my camera and my 50mm</p>
         </div>
         <div className="text-center py-10">Loading photos...</div>
       </div>
@@ -279,7 +279,7 @@ const Photography = () => {
         <div className="mb-2">
           <BackButton variant="text" />
           <h1 className="text-3xl mb-2 mt-6">Photography</h1>
-          {/* <p className="text-muted-foreground">Going around my 50mm and my phone.</p> */}
+          <p className="text-muted-foreground">Strolling around with my camera and my 50mm</p>
         </div>
         <div className="text-center py-10 text-red-500">Error: {error}</div>
       </div>
@@ -292,7 +292,7 @@ const Photography = () => {
         <div className="mb-2">
           <BackButton variant="text" />
           <h1 className="text-3xl mb-2 mt-6">Photography</h1>
-          {/* <p className="text-muted-foreground">Going around with my 50mm and my phone.</p> */}
+          <p className="text-muted-foreground">Strolling around with my camera and my 50mm</p>
         </div>
 
         {/* Sleek Filter Dropdowns */}
@@ -331,7 +331,7 @@ const Photography = () => {
       <div className="mb-2">
         <BackButton variant="text" />
         <h1 className="text-3xl mb-2 mt-6">Photography</h1>
-        {/* <p className="text-muted-foreground">Going around my 50mm and my phone.</p> */}
+        <p className="text-muted-foreground">Strolling around with my camera and my 50mm</p>
       </div>
 
       {/* Sleek Filter Dropdowns */}
