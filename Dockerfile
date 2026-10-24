@@ -5,7 +5,7 @@
 #
 # Local build:
 #   docker build --secret id=npm_token,env=NODE_AUTH_TOKEN \
-#     --build-arg VITE_API_BASE_URL=https://api.locus.estebanbasili.com/api -t app .
+#     --build-arg VITE_API_BASE_URL=https://locus-api.estebanbasili.com/api -t app .
 #
 # VITE_API_BASE_URL is baked into the bundle at build time (public, not a secret).
 # NODE_ENV=production at build time (some configs, e.g. vite-plugin-pwa, only activate then); dev deps still installed.
@@ -15,7 +15,7 @@ ARG NODE_VERSION=24
 FROM node:${NODE_VERSION}-bookworm-slim AS build
 WORKDIR /app
 # Every VITE_* variable the app reads (baked in at build time, public)
-ARG VITE_API_BASE_URL=https://api.locus.estebanbasili.com/api
+ARG VITE_API_BASE_URL=https://locus-api.estebanbasili.com/api
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL} \
     NODE_ENV=production
 COPY package.json package-lock.json .npmrc* ./
